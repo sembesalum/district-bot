@@ -43,4 +43,11 @@ The bot uses the same WhatsApp configuration as the SmartSchoolChatbot project:
 - Sends a welcome message automatically when a user sends any message via WhatsApp
 - Webhook endpoint at `/webhook/` for receiving WhatsApp messages
 - Uses the same WhatsApp API configuration as the existing SmartSchoolChatbot project
-# district-bot
+
+## Deployment
+
+The bot is deployed on PythonAnywhere at:
+- **Domain**: `geoclimabackup.pythonanywhere.com`
+- **Webhook URL**: `https://geoclimabackup.pythonanywhere.com/webhook/`
+
+Make sure to configure this URL in your WhatsApp Business API settings.

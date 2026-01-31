@@ -7,7 +7,11 @@ from .utils import send_message
 
 @csrf_exempt
 def webhook(request):
-    """WhatsApp webhook endpoint - sends welcome message when user sends SMS"""
+    """
+    WhatsApp webhook endpoint - sends welcome message when user sends SMS
+    
+    Webhook URL: https://geoclimabackup.pythonanywhere.com/webhook/
+    """
     if request.method == "GET":
         # Webhook verification
         mode = request.GET.get("hub.mode")
