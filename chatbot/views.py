@@ -68,11 +68,16 @@ def webhook(request):
                     )
                     session.state = next_state
                     session.context = context_update
-                    session.save(update_fields=["state", "context", "updated_at"])
+                    if "language" in context_update:
+                        session.language = context_update["language"]
+                    update_fields = ["state", "context", "updated_at"]
+                    if "language" in context_update:
+                        update_fields.append("language")
+                    session.save(update_fields=update_fields)
 
                     # Guarantee a response (fallback welcome if reply ever empty)
                     if not (reply_text or "").strip():
-                        reply_text = get_welcome_message()
+                        reply_text = get_welcome_message(session.language or "en")
                     send_message(phone, reply_text)
                     print(f"✅ Reply sent to {phone} (state={next_state})")
 

@@ -136,18 +136,37 @@ def _validate_phone(text):
     return s.isdigit() and 9 <= len(s) <= 15
 
 
-def get_welcome_message():
-    """Welcome message sent when user texts the bot for the first time."""
+def get_main_menu(lang="en"):
+    """Main menu text in English or Kiswahili (lang 'en' or 'sw')."""
+    if lang == "sw":
+        return (
+            "Karibu! 👋\n"
+            "Huu ni Msaidizi wa Huduma za Raia wa Wilaya.\n\n"
+            "Naweza kukusaidia:\n"
+            "1️⃣ Angalia hali ya maombi\n"
+            "2️⃣ Wasilisha swali au malalamiko\n"
+            "3️⃣ Pata taarifa za idara\n"
+            "4️⃣ Badilisha lugha\n\n"
+            "Tafadhali jibu kwa nambari kuendelea."
+        )
     return (
         "Karibu! 👋\n"
         "This is the District Citizen Services Assistant.\n\n"
         "I can help you:\n"
         "1️⃣ Check application status\n"
         "2️⃣ Submit a question or complaint\n"
-        "3️⃣ Get department information\n\n"
-        "Please reply with a number to continue.\n"
-        "(Reply # to reset / start over)"
+        "3️⃣ Get department information\n"
+        "4️⃣ Change language\n\n"
+        "Please reply with a number to continue."
     )
+
+
+def get_welcome_message(lang="en"):
+    """Welcome message (main menu + reset hint). Default English."""
+    hint_en = "\n(Reply # to reset / start over)"
+    hint_sw = "\n(Jibu # kuanza upya)"
+    hint = hint_sw if lang == "sw" else hint_en
+    return get_main_menu(lang) + hint
 
 
 def process_message(session_state, session_context, session_language, user_message):
@@ -165,51 +184,35 @@ def process_message(session_state, session_context, session_language, user_messa
     if msg == "#":
         next_state = MAIN_MENU
         ctx = {}
-        reply = get_welcome_message()
+        reply = get_welcome_message(session_language or "en")
         return next_state, ctx, reply
 
-    # ----- Welcome / first message -> main menu -----
+    # ----- Welcome / first message -> main menu (default English) -----
     if state == WELCOME:
         next_state = MAIN_MENU
-        reply = get_welcome_message()
+        reply = get_welcome_message("en")
         return next_state, ctx, reply
 
-    # ----- Optional: language choice (if we add trigger later) -----
+    # ----- Language choice (option 4 from main menu) -----
     if state == LANGUAGE_CHOICE:
+        lang_prompt_en = "Please choose language:\n1️⃣ Kiswahili\n2️⃣ English"
+        lang_prompt_sw = "Chagua lugha:\n1️⃣ Kiswahili\n2️⃣ English"
+        lang_prompt = lang_prompt_sw if session_language == "sw" else lang_prompt_en
         if msg == "1":
             ctx["language"] = "sw"
             next_state = MAIN_MENU
-            reply = (
-                "Karibu! 👋\n"
-                "Huu ni Msaidizi wa Huduma za Raia wa Wilaya.\n\n"
-                "Naweza kukusaidia:\n"
-                "1️⃣ Angalia hali ya maombi\n"
-                "2️⃣ Wasilisha swali au malalamiko\n"
-                "3️⃣ Pata taarifa za idara\n\n"
-                "Tafadhali jibu kwa nambari kuendelea."
-            )
+            reply = get_welcome_message("sw")
         elif msg == "2":
             ctx["language"] = "en"
             next_state = MAIN_MENU
-            reply = (
-                "Karibu! 👋\n"
-                "This is the District Citizen Services Assistant.\n\n"
-                "I can help you:\n"
-                "1️⃣ Check application status\n"
-                "2️⃣ Submit a question or complaint\n"
-                "3️⃣ Get department information\n\n"
-                "Please reply with a number to continue."
-            )
+            reply = get_welcome_message("en")
         else:
-            reply = (
-                "Please choose language:\n"
-                "1️⃣ Kiswahili\n"
-                "2️⃣ English"
-            )
+            reply = lang_prompt
         return next_state, ctx, reply
 
     # ----- Main menu -----
     if state == MAIN_MENU:
+        lang = session_language or "en"
         if msg == "1":
             next_state = CHECK_DEPT
             reply = (
@@ -240,6 +243,13 @@ def process_message(session_state, session_context, session_language, user_messa
                 "3️⃣ Health\n"
                 "4️⃣ Maji\n"
                 "5️⃣ Business & Trade"
+            )
+        elif msg == "4":
+            next_state = LANGUAGE_CHOICE
+            reply = (
+                "Please choose language:\n"
+                "1️⃣ Kiswahili\n"
+                "2️⃣ English"
             )
         else:
             reply = _invalid_option()
@@ -311,12 +321,7 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == CHECK_RESULT_OPTIONS:
-        main_menu_text = (
-            "1️⃣ Check application status\n"
-            "2️⃣ Submit a question or complaint\n"
-            "3️⃣ Get department information\n\n"
-            "Please reply with a number to continue."
-        )
+        lang = session_language or "en"
         if msg == "1":
             ctx.pop("check_dept", None)
             ctx.pop("check_id_type", None)
@@ -338,14 +343,14 @@ def process_message(session_state, session_context, session_language, user_messa
             ctx.pop("last_check_identifier", None)
             reply = (
                 "You can contact support at the district office.\n\n"
-                + main_menu_text
+                + get_main_menu(lang)
             )
         elif msg == "3":
             next_state = MAIN_MENU
             ctx.pop("check_dept", None)
             ctx.pop("check_id_type", None)
             ctx.pop("last_check_identifier", None)
-            reply = main_menu_text
+            reply = get_main_menu(lang)
         else:
             reply = (
                 "1️⃣ Try again\n"
@@ -383,14 +388,10 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == SUBMIT_CONFIRMED_OPTIONS:
+        lang = session_language or "en"
         if msg == "1":
             next_state = MAIN_MENU
-            reply = (
-                "1️⃣ Check application status\n"
-                "2️⃣ Submit a question or complaint\n"
-                "3️⃣ Get department information\n\n"
-                "Please reply with a number to continue."
-            )
+            reply = get_main_menu(lang)
         elif msg == "2":
             next_state = TRACK_TICKET
             tid = ctx.get("ticket_id", "N/A")
@@ -407,14 +408,10 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == TRACK_TICKET:
+        lang = session_language or "en"
         if msg == "1":
             next_state = MAIN_MENU
-            reply = (
-                "1️⃣ Check application status\n"
-                "2️⃣ Submit a question or complaint\n"
-                "3️⃣ Get department information\n\n"
-                "Please reply with a number to continue."
-            )
+            reply = get_main_menu(lang)
         else:
             reply = "1️⃣ Main menu"
         return next_state, ctx, reply
@@ -433,24 +430,15 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == DEPT_INFO_SHOWN:
+        lang = session_language or "en"
         if msg == "1":
             next_state = MAIN_MENU
-            reply = (
-                "1️⃣ Check application status\n"
-                "2️⃣ Submit a question or complaint\n"
-                "3️⃣ Get department information\n\n"
-                "Please reply with a number to continue."
-            )
+            reply = get_main_menu(lang)
         else:
             reply = "1️⃣ Main menu"
         return next_state, ctx, reply
 
     # Fallback: reset to main menu
     next_state = MAIN_MENU
-    reply = (
-        "1️⃣ Check application status\n"
-        "2️⃣ Submit a question or complaint\n"
-        "3️⃣ Get department information\n\n"
-        "Please reply with a number to continue."
-    )
+    reply = get_main_menu(session_language or "en")
     return next_state, ctx, reply
