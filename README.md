@@ -51,3 +51,16 @@ The bot is deployed on PythonAnywhere at:
 - **Webhook URL**: `https://geoclimabackup.pythonanywhere.com/webhook/`
 
 Make sure to configure this URL in your WhatsApp Business API settings.
+
+## Not receiving messages (200 in logs but nothing on phone)
+
+If the server logs show `Message sent: 200` and `Reply sent to …` but you don’t see the message on WhatsApp:
+
+1. **Add your number as a test number (development mode)**  
+   In [Meta for Developers](https://developers.facebook.com/) → Your App → **WhatsApp** → **API Setup**, under “To”, add the phone number you’re testing with (e.g. `255616107670`). In development, only these numbers can receive messages.
+
+2. **Use the same number you’re testing with**  
+   Make sure you’re chatting with the WhatsApp Business number that uses the **Phone number ID** set in `settings.py` (`WHATSAPP_PHONE_ID`). If you message a different business number, replies won’t appear in that chat.
+
+3. **Check delivery in Meta**  
+   In WhatsApp → API Setup, check for delivery/read status or errors. A 200 response only means the API accepted the request; delivery can still fail (e.g. invalid or non‑test number).
