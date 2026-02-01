@@ -13,11 +13,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 
 # WhatsApp Configuration
-WHATSAPP_PHONE_ID = "793029307234057"
-WHATSAPP_ACCESS_TOKEN = "EAAJ27qRF6ZBYBQjKkZCkka83lDlT5QURBxQWyYvZC5Ul7qGgLU63lHpAaqrZBlRZB0CSTp7ZB27U4cVeVKyvVY6PMxZCOZBp9qzOm8V3TTOXi0DomCUQ00Rp9zA9qHG12soPTxpszPaSZBKdFwX2LULF1ZA62ZBEzKvirQUDCNM36gZCipJ1d4ss97ez3flZCcJ7ZALsEDnAZDZD"
-WHATSAPP_VERIFY_TOKEN = "smartschool_verify"
-WHATSAPP_BUSINESS_ACCOUNT_ID = "808261591742263"
-WHATSAPP_BUSINESS_ID = "172550735934266"
+WHATSAPP_PHONE_ID = "1002271012963732"
+WHATSAPP_ACCESS_TOKEN = "EAAMWcudZC1xkBQqzMXGa0ZAaUk3bXRh7imzZA6QSOtZC3NIi0baZCUMZA5aX75ZBmoaf7CuAWy9JtpjfF3TKKb5diPZA1lGdfmoCXLvSjNnmjpVHT0FuyAPM8EZC5kghspeyCnrvgHdAoncrfQ3i6Edmvr90Qi4i13wrUhj9cGWdOmlKDD7EKRt0MpE9Xz26YrXTnqwZDZD"
+WHATSAPP_VERIFY_TOKEN = "district_verify"
+WHATSAPP_BUSINESS_ACCOUNT_ID = "1648760919635248"
+WHATSAPP_BUSINESS_ID = "747338708438839"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,6 +76,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DistrictBot.wsgi.application'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
