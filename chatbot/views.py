@@ -29,6 +29,13 @@ def webhook(request):
         for entry in data.get("entry", []):
             for change in entry.get("changes", []):
                 value = change.get("value", {})
+                # Log delivery status (sent/delivered/read/failed) so we can see why messages don't reach the phone
+                for status in value.get("statuses", []):
+                    sid = status.get("id", "")
+                    recipient = status.get("recipient_id", "")
+                    s = status.get("status", "")
+                    err = status.get("errors", [])
+                    print(f"📬 Status: to={recipient} status={s} id={sid} errors={err}")
                 messages = value.get("messages", [])
                 if not messages:
                     continue

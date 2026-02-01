@@ -54,13 +54,31 @@ Make sure to configure this URL in your WhatsApp Business API settings.
 
 ## Not receiving messages (200 in logs but nothing on phone)
 
-If the server logs show `Message sent: 200` and `Reply sent to …` but you don’t see the message on WhatsApp:
+The API returning **200 with a message ID** only means Meta *accepted* the request. Delivery can still fail. Do the following:
 
-1. **Add your number as a test number (development mode)**  
-   In [Meta for Developers](https://developers.facebook.com/) → Your App → **WhatsApp** → **API Setup**, under “To”, add the phone number you’re testing with (e.g. `255616107670`). In development, only these numbers can receive messages.
+### 1. Watch for delivery status in your server logs
 
-2. **Use the same number you’re testing with**  
-   Make sure you’re chatting with the WhatsApp Business number that uses the **Phone number ID** set in `settings.py` (`WHATSAPP_PHONE_ID`). If you message a different business number, replies won’t appear in that chat.
+After you send a message to the bot, WhatsApp may send a **status** update to your webhook (sent → delivered → read, or failed). The app now logs these:
 
-3. **Check delivery in Meta**  
-   In WhatsApp → API Setup, check for delivery/read status or errors. A 200 response only means the API accepted the request; delivery can still fail (e.g. invalid or non‑test number).
+- Look for lines like: `📬 Status: to=255616107670 status=delivered` or `status=failed errors=[...]`
+- If you see **status=failed**, the `errors` array explains why (e.g. user blocked the business, number invalid).
+
+**To get status updates:** In [Meta for Developers](https://developers.facebook.com/) → Your App → **WhatsApp** → **Configuration** → **Webhook** → **Edit** → make sure the **messages** field is subscribed. That sends both incoming messages and delivery status to your webhook.
+
+### 2. Confirm you’re messaging the correct business number
+
+You must chat with the **WhatsApp Business** number that has **Phone number ID** `793029307234057` (the one in `settings.py`). If you message a different business number, replies go from the configured number and won’t show in that chat.
+
+### 3. Confirm the number and device
+
+- The number in the logs (`255616107670`) must be the **same number** you’re logged into on WhatsApp (same SIM/device).
+- Make sure that number hasn’t **blocked** the business.
+- Try from **another phone number** (e.g. a friend’s) to see if that one receives messages.
+
+### 4. Development / test numbers (if applicable)
+
+In some setups, only numbers added as test recipients can receive messages. In **WhatsApp** → **API Setup**, check if there is a “To” or “Phone numbers” section where you add numbers that can receive messages, and add `255616107670` there if needed.
+
+### 5. Check Meta Business Suite / App Dashboard
+
+In **WhatsApp** → **API Setup** or **Insights**, see if there are delivery or error reports for your messages. That can show blocks, invalid numbers, or policy issues.
