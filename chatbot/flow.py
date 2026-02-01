@@ -145,7 +145,8 @@ def get_welcome_message():
         "1️⃣ Check application status\n"
         "2️⃣ Submit a question or complaint\n"
         "3️⃣ Get department information\n\n"
-        "Please reply with a number to continue."
+        "Please reply with a number to continue.\n"
+        "(Reply # to reset / start over)"
     )
 
 
@@ -160,18 +161,17 @@ def process_message(session_state, session_context, session_language, user_messa
     reply = ""
     next_state = state
 
+    # ----- # = reset session (default key) -----
+    if msg == "#":
+        next_state = MAIN_MENU
+        ctx = {}
+        reply = get_welcome_message()
+        return next_state, ctx, reply
+
     # ----- Welcome / first message -> main menu -----
     if state == WELCOME:
         next_state = MAIN_MENU
-        reply = (
-            "Karibu! 👋\n"
-            "This is the District Citizen Services Assistant.\n\n"
-            "I can help you:\n"
-            "1️⃣ Check application status\n"
-            "2️⃣ Submit a question or complaint\n"
-            "3️⃣ Get department information\n\n"
-            "Please reply with a number to continue."
-        )
+        reply = get_welcome_message()
         return next_state, ctx, reply
 
     # ----- Optional: language choice (if we add trigger later) -----
