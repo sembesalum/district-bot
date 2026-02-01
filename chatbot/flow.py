@@ -136,6 +136,19 @@ def _validate_phone(text):
     return s.isdigit() and 9 <= len(s) <= 15
 
 
+def get_welcome_message():
+    """Welcome message sent when user texts the bot for the first time."""
+    return (
+        "Karibu! 👋\n"
+        "This is the District Citizen Services Assistant.\n\n"
+        "I can help you:\n"
+        "1️⃣ Check application status\n"
+        "2️⃣ Submit a question or complaint\n"
+        "3️⃣ Get department information\n\n"
+        "Please reply with a number to continue."
+    )
+
+
 def process_message(session_state, session_context, session_language, user_message):
     """
     Process one user message. No DB for applications/complaints; session only.
