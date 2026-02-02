@@ -44,11 +44,11 @@ def _dept_list(with_other=True):
 
 
 def _t(lang, en, sw):
-    """Return English or Kiswahili text by lang ('en' or 'sw')."""
-    return sw if (lang or "en") == "sw" else en
+    """Return English or Kiswahili text by lang ('en' or 'sw'). Default Kiswahili."""
+    return en if (lang or "sw") == "en" else sw
 
 
-def _invalid_option(lang="en"):
+def _invalid_option(lang="sw"):
     return _t(
         lang,
         "Sorry, I didn't understand that.\nPlease reply with a valid option number.",
@@ -56,7 +56,7 @@ def _invalid_option(lang="en"):
     )
 
 
-def _no_record_found(lang="en"):
+def _no_record_found(lang="sw"):
     return _t(
         lang,
         "No record found with the provided details.\n\n1️⃣ Try again\n2️⃣ Contact support",
@@ -187,8 +187,8 @@ def _validate_phone(text):
     return s.isdigit() and 9 <= len(s) <= 15
 
 
-def get_main_menu(lang="en"):
-    """Main menu text in English or Kiswahili (lang 'en' or 'sw')."""
+def get_main_menu(lang="sw"):
+    """Main menu text in English or Kiswahili (lang 'en' or 'sw'). Default Kiswahili."""
     if lang == "sw":
         return (
             "Karibu! 👋\n"
@@ -212,8 +212,8 @@ def get_main_menu(lang="en"):
     )
 
 
-def get_welcome_message(lang="en"):
-    """Welcome message (main menu + reset hint). Default English."""
+def get_welcome_message(lang="sw"):
+    """Welcome message (main menu + reset hint). Default Kiswahili."""
     hint_en = "\n(Reply # to reset / start over)"
     hint_sw = "\n(Jibu # kuanza upya)"
     hint = hint_sw if lang == "sw" else hint_en
@@ -235,13 +235,13 @@ def process_message(session_state, session_context, session_language, user_messa
     if msg == "#":
         next_state = MAIN_MENU
         ctx = {}
-        reply = get_welcome_message(session_language or "en")
+        reply = get_welcome_message(session_language or "sw")
         return next_state, ctx, reply
 
-    # ----- Welcome / first message -> main menu (default English) -----
+    # ----- Welcome / first message -> main menu (default Kiswahili) -----
     if state == WELCOME:
         next_state = MAIN_MENU
-        reply = get_welcome_message("en")
+        reply = get_welcome_message("sw")
         return next_state, ctx, reply
 
     # ----- Language choice (option 4 from main menu) -----
@@ -263,7 +263,7 @@ def process_message(session_state, session_context, session_language, user_messa
 
     # ----- Main menu -----
     if state == MAIN_MENU:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         select_dept = _t(lang,
             "Please select the department:\n1️⃣ Ardhi (Land)\n2️⃣ Electricity\n3️⃣ Health\n4️⃣ Maji (Water)\n5️⃣ Business & Trade\n6️⃣ Other",
             "Chagua idara:\n1️⃣ Ardhi (Ardhi)\n2️⃣ Umeme\n3️⃣ Afya\n4️⃣ Maji\n5️⃣ Biashara na Soko\n6️⃣ Nyingine")
@@ -291,7 +291,7 @@ def process_message(session_state, session_context, session_language, user_messa
 
     # ----- Check status: department -> ID type -> ID value -----
     if state == CHECK_DEPT:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         dept = _get_dept_by_number(msg, with_other=True)
         if dept:
             ctx["check_dept"] = dept
@@ -306,7 +306,7 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == CHECK_ID_TYPE:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         enter_ref = _t(lang, "Please enter your Application Reference Number:", "Tafadhali ingiza Nambari yako ya Kumbukumbu ya Maombi:")
         enter_nida = _t(lang, "Please enter your National ID (NIDA):", "Tafadhali ingiza Kitambulisho chako cha Taifa (NIDA):")
         enter_phone = _t(lang, "Please enter your Phone Number:", "Tafadhali ingiza Nambari yako ya Simu:")
@@ -324,7 +324,7 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == CHECK_ID_VALUE:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         id_type = ctx.get("check_id_type", "1")
         valid = False
         if id_type == "1":
@@ -352,7 +352,7 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == CHECK_RESULT_OPTIONS:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         select_dept = _t(lang,
             "Please select the department:\n1️⃣ Ardhi (Land)\n2️⃣ Electricity\n3️⃣ Health\n4️⃣ Maji (Water)\n5️⃣ Business & Trade\n6️⃣ Other",
             "Chagua idara:\n1️⃣ Ardhi (Ardhi)\n2️⃣ Umeme\n3️⃣ Afya\n4️⃣ Maji\n5️⃣ Biashara na Soko\n6️⃣ Nyingine")
@@ -384,7 +384,7 @@ def process_message(session_state, session_context, session_language, user_messa
 
     # ----- Submit question/complaint -----
     if state == SUBMIT_DEPT:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         dept = _get_dept_by_number(msg, with_other=False)
         if dept:
             ctx["submit_dept"] = dept
@@ -395,7 +395,7 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == SUBMIT_MESSAGE:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         if not msg or len(msg) < 3:
             reply = _t(lang, "Please type your question or complaint (at least a few words).", "Tafadhali andika swali au malalamiko (angalau maneno machache).")
             return next_state, ctx, reply
@@ -411,7 +411,7 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == SUBMIT_CONFIRMED_OPTIONS:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         main_menu_only = _t(lang, "1️⃣ Main menu\n2️⃣ Track my ticket", "1️⃣ Menyu kuu\n2️⃣ Fuatilia tiketi yangu")
         main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
         if msg == "1":
@@ -431,7 +431,7 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == TRACK_TICKET:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
         if msg == "1":
             next_state = MAIN_MENU
@@ -442,7 +442,7 @@ def process_message(session_state, session_context, session_language, user_messa
 
     # ----- Department info -----
     if state == DEPT_INFO_CHOICE:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         dept = _get_dept_by_number(msg, with_other=False)
         if dept:
             ctx["dept_info_shown"] = dept
@@ -459,7 +459,7 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     if state == DEPT_INFO_SHOWN:
-        lang = session_language or "en"
+        lang = session_language or "sw"
         main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
         if msg == "1":
             next_state = MAIN_MENU
@@ -470,5 +470,5 @@ def process_message(session_state, session_context, session_language, user_messa
 
     # Fallback: reset to main menu
     next_state = MAIN_MENU
-    reply = get_main_menu(session_language or "en")
+    reply = get_main_menu(session_language or "sw")
     return next_state, ctx, reply

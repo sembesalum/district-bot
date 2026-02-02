@@ -51,7 +51,7 @@ def webhook(request):
 
                     session, created = ChatSession.objects.get_or_create(
                         phone_number=phone,
-                        defaults={"state": WELCOME, "context": {}, "language": "en"}
+                        defaults={"state": WELCOME, "context": {}, "language": "sw"}
                     )
                     if not created:
                         session.refresh_from_db()
@@ -77,7 +77,7 @@ def webhook(request):
 
                     # Guarantee a response (fallback welcome if reply ever empty)
                     if not (reply_text or "").strip():
-                        reply_text = get_welcome_message(session.language or "en")
+                        reply_text = get_welcome_message(session.language or "sw")
                     send_message(phone, reply_text)
                     print(f"✅ Reply sent to {phone} (state={next_state})")
 
