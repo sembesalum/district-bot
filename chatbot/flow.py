@@ -197,17 +197,17 @@ def get_main_menu(lang="sw"):
             "1️⃣ Angalia hali ya maombi\n"
             "2️⃣ Wasilisha swali au malalamiko\n"
             "3️⃣ Pata taarifa za idara\n"
-            "4️⃣ Badilisha lugha\n\n"
+            "4️⃣ Change Language\n\n"
             "Tafadhali jibu kwa nambari kuendelea."
         )
     return (
-        "Karibu! 👋\n"
+        "Welcome! 👋\n"
         "This is the District Citizen Services Assistant.\n\n"
         "I can help you:\n"
         "1️⃣ Check application status\n"
         "2️⃣ Submit a question or complaint\n"
         "3️⃣ Get department information\n"
-        "4️⃣ Change language\n\n"
+        "4️⃣ Badilisha lugha\n\n"
         "Please reply with a number to continue."
     )
 
