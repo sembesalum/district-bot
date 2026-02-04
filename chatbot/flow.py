@@ -188,36 +188,31 @@ def _validate_phone(text):
 
 
 def get_main_menu(lang="sw"):
-    """Main menu text in English or Kiswahili (lang 'en' or 'sw'). Default Kiswahili."""
-    if lang == "sw":
-        return (
-            "Karibu! 👋\n"
-            "Huu ni Msaidizi wa Huduma za Raia wa Wilaya.\n\n"
-            "Naweza kukusaidia:\n"
-            "1️⃣ Angalia hali ya maombi\n"
-            "2️⃣ Wasilisha swali au malalamiko\n"
-            "3️⃣ Pata taarifa za idara\n"
-            "4️⃣ Change Language\n\n"
-            "Tafadhali jibu kwa nambari kuendelea."
-        )
+    """
+    Main menu text.
+
+    NOTE: For now we only use Kiswahili as the active language.
+    """
     return (
-        "Welcome! 👋\n"
-        "This is the District Citizen Services Assistant.\n\n"
-        "I can help you:\n"
-        "1️⃣ Check application status\n"
-        "2️⃣ Submit a question or complaint\n"
-        "3️⃣ Get department information\n"
-        "4️⃣ Badilisha lugha\n\n"
-        "Please reply with a number to continue."
+        "Habari,\n"
+        "Karibu Wilaya ya Chemba!\n\n"
+        "Nipo hapa kukuhudumia na kukupa taarifa zaidi kuhusu huduma, idara na fursa "
+        "zinazopatikana katika Wilaya yetu ya Chemba.\n"
+        "👉 Tafadhali chagua eneo unalotaka kupata taarifa:\n\n"
+        "1️⃣ Utangulizi wa Wilaya\n"
+        "2️⃣ Taasisi za Serikali zinazopatikana ndani ya Wilaya ya Chemba\n"
+        "3️⃣ Halmashauri ya Wilaya\n"
+        "4️⃣ Fursa zilizopo katika Wilaya\n"
+        "5️⃣ Maswali ya Haraka\n"
+        "6️⃣ Angalia Hali ya Maombi\n"
+        "7️⃣ Wasilisha Malalamiko\n\n"
+        "🔁 Jibu # kuanza upya wakati wowote."
     )
 
 
 def get_welcome_message(lang="sw"):
-    """Welcome message (main menu + reset hint). Default Kiswahili."""
-    hint_en = "\n(Reply # to reset / start over)"
-    hint_sw = "\n(Jibu # kuanza upya)"
-    hint = hint_sw if lang == "sw" else hint_en
-    return get_main_menu(lang) + hint
+    """Welcome message (currently same as main menu, in Kiswahili)."""
+    return get_main_menu(lang)
 
 
 def process_message(session_state, session_context, session_language, user_message):
@@ -263,30 +258,138 @@ def process_message(session_state, session_context, session_language, user_messa
 
     # ----- Main menu -----
     if state == MAIN_MENU:
-        lang = session_language or "sw"
-        select_dept = _t(lang,
-            "Please select the department:\n1️⃣ Ardhi (Land)\n2️⃣ Electricity\n3️⃣ Health\n4️⃣ Maji (Water)\n5️⃣ Business & Trade\n6️⃣ Other",
-            "Chagua idara:\n1️⃣ Ardhi (Ardhi)\n2️⃣ Umeme\n3️⃣ Afya\n4️⃣ Maji\n5️⃣ Biashara na Soko\n6️⃣ Nyingine")
-        select_dept_issue = _t(lang,
-            "Please select the department your issue relates to:\n1️⃣ Ardhi\n2️⃣ Electricity\n3️⃣ Health\n4️⃣ Maji\n5️⃣ Business & Trade",
-            "Chagua idara inayohusika na tatizo lako:\n1️⃣ Ardhi\n2️⃣ Umeme\n3️⃣ Afya\n4️⃣ Maji\n5️⃣ Biashara na Soko")
-        select_dept_info = _t(lang,
-            "Select a department to get information:\n1️⃣ Ardhi\n2️⃣ Electricity\n3️⃣ Health\n4️⃣ Maji\n5️⃣ Business & Trade",
-            "Chagua idara kupata taarifa:\n1️⃣ Ardhi\n2️⃣ Umeme\n3️⃣ Afya\n4️⃣ Maji\n5️⃣ Biashara na Soko")
+        # For now, we only use Kiswahili.
         if msg == "1":
-            next_state = CHECK_DEPT
-            reply = select_dept
+            # Utangulizi wa Wilaya
+            reply = (
+                "1️⃣ Utangulizi wa Wilaya ya Chemba\n\n"
+                "• Jiografia na mipaka ya Wilaya:\n"
+                "  - Kaskazini: Wilaya ya Kondoa\n"
+                "  - Mashariki: Wilaya ya Kiteto\n"
+                "  - Kusini: Wilaya ya Bahi\n"
+                "  - Kusini Mashariki: Wilaya ya Chamwino\n"
+                "  - Magharibi: Wilaya ya Manyoni na Singida\n"
+                "  - Kaskazini Magharibi: Wilaya ya Hanang\n\n"
+                "• Muundo wa utawala:\n"
+                "  - Tarafa 4, Kata 26, Vijiji 114\n\n"
+                "• Idadi ya watu:\n"
+                "  - 339,333 (Me 170,837; Ke 168,496)\n\n"
+                "• Jimbo la uchaguzi:\n"
+                "  - Jimbo 1 la Uchaguzi\n\n"
+                "• Halmashauri:\n"
+                "  - Halmashauri 1 ya Wilaya ya Chemba\n\n"
+                "• Dira ya Wilaya ya Chemba:\n"
+                "  - Kuwa Halmashauri yenye utawala bora inayotoa huduma bora, "
+                "inayochochea ukuaji endelevu wa uchumi na maendeleo jumuishi kwa wakazi wote.\n\n"
+                "• Dhima ya Halmashauri:\n"
+                "  - Kutoa utawala bora wa Serikali za Mitaa, kusimamia rasilimali kwa ufanisi, "
+                "na kuboresha utoaji wa huduma ili kuendeleza maendeleo endelevu ya kijamii na kiuchumi.\n\n"
+                "• Maadili ya msingi:\n"
+                "  - Uwajibikaji\n"
+                "  - Ubora katika huduma\n"
+                "  - Ufanisi na thamani ya fedha\n"
+                "  - Uwazi\n"
+                "  - Uadilifu\n"
+                "  - Ubunifu wa kimaendeleo\n"
+                "  - Ushirikiano na kazi kwa pamoja\n\n"
+                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+            )
+            next_state = MAIN_MENU
         elif msg == "2":
-            next_state = SUBMIT_DEPT
-            reply = select_dept_issue
+            # Taasisi za Serikali
+            reply = (
+                "2️⃣ Taasisi za Serikali katika Wilaya ya Chemba\n\n"
+                "Taasisi kuu za Serikali zinazopatikana ndani ya Wilaya ya Chemba ni:\n"
+                "• TRA\n"
+                "• TANESCO\n"
+                "• VETA\n"
+                "• RUWASA\n"
+                "• TARURA\n"
+                "• TFS\n"
+                "• NIDA\n"
+                "• RITA\n\n"
+                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+            )
+            next_state = MAIN_MENU
         elif msg == "3":
-            next_state = DEPT_INFO_CHOICE
-            reply = select_dept_info
+            # Halmashauri ya Wilaya
+            reply = (
+                "3️⃣ Halmashauri ya Wilaya ya Chemba\n\n"
+                "Halmashauri ina idara na vitengo 20 vinavyotekeleza majukumu mbalimbali, ikiwemo:\n\n"
+                "• Idara ya Huduma za Afya, Ustawi wa Jamii na Lishe:\n"
+                "  - Vituo vya kutolea huduma za afya: Hospitali 1, Vituo vya afya 6, Zahanati 47 (jumla 54)\n"
+                "  - Upatikanaji wa dawa: 52%\n"
+                "  - Huduma bure kwa wazee wasiojiweza, mama mjamzito na watoto chini ya miaka 5\n\n"
+                "• Idara ya Elimu ya Awali na Msingi:\n"
+                "  - Shule za Msingi: 118\n"
+                "  - Uandikishaji Awali: 7,548 (61%)\n"
+                "  - Uandikishaji Darasa la Kwanza: 9,172 (76%)\n"
+                "  - Walimu wa shule za msingi: 878\n\n"
+                "• Idara ya Elimu ya Sekondari:\n"
+                "  - Shule za Sekondari: 31\n"
+                "  - Udahili Kidato cha Kwanza: 4,495\n"
+                "  - Ufaulu: Kidato cha Pili 79.4%, Kidato cha Nne 94%, Kidato cha Sita 100%\n\n"
+                "• Idara ya Viwanda, Biashara na Uwekezaji:\n"
+                "  - Leseni za biashara (TAUSI): 721 (~30%)\n"
+                "  - Viwanda vidogo na vya kati: Vidogo 543, Kati 3\n"
+                "  - Fursa za uwekezaji: Maeneo maalum Chemba, Paranga na Kambi ya Nyasa\n\n"
+                "• Idara ya Maendeleo ya Jamii:\n"
+                "  - Mikopo isiyo na riba (10% ya mapato ya ndani): "
+                "Tsh 408,125,000 (mwaka 2025/26)\n"
+                "  - Wanufaika: wanawake, vijana na watu wenye ulemavu\n\n"
+                "Halmashauri pia ina idara nyingine kama Kilimo, Miundombinu, Utawala, "
+                "Sheria, Uhasibu, Ukaguzi wa Ndani, Tehama, Mawasiliano Serikalini na nyingine nyingi.\n\n"
+                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+            )
+            next_state = MAIN_MENU
         elif msg == "4":
-            next_state = LANGUAGE_CHOICE
-            reply = _t(lang, "Please choose language:\n1️⃣ Kiswahili\n2️⃣ English", "Chagua lugha:\n1️⃣ Kiswahili\n2️⃣ English")
+            # Fursa zilizopo katika Wilaya
+            reply = (
+                "4️⃣ Fursa zilizopo katika Wilaya ya Chemba\n\n"
+                "• Uwepo wa maeneo yaliyotengwa kwa ajili ya uwekezaji katika:\n"
+                "  - Mji wa Chemba\n"
+                "  - Paranga\n"
+                "  - Kambi ya Nyasa\n\n"
+                "Maeneo haya yana miundombinu wezeshi kama umeme, barabara na mawasiliano "
+                "yanayorahisisha uwekezaji na shughuli za kiuchumi.\n\n"
+                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+            )
+            next_state = MAIN_MENU
+        elif msg == "5":
+            # Maswali ya Haraka (placeholder based on taarifa.md kichwa)
+            reply = (
+                "5️⃣ Maswali ya Haraka\n\n"
+                "Sehemu hii inahusu maswali ya msingi kuhusu Wilaya ya Chemba, huduma na fursa zake.\n"
+                "Kwa sasa tafadhali tumia menyu kuu kuchagua eneo unalotaka kupata taarifa zaidi, "
+                "au wasiliana na Halmashauri ya Wilaya kwa ufafanuzi wa ziada.\n\n"
+                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+            )
+            next_state = MAIN_MENU
+        elif msg == "6":
+            # Angalia Hali ya Maombi (re-use existing check status flow)
+            next_state = CHECK_DEPT
+            reply = (
+                "Chagua idara unayotaka kuangalia hali ya maombi:\n"
+                "1️⃣ Ardhi (Ardhi)\n"
+                "2️⃣ Umeme\n"
+                "3️⃣ Afya\n"
+                "4️⃣ Maji\n"
+                "5️⃣ Biashara na Soko\n"
+                "6️⃣ Nyingine"
+            )
+        elif msg == "7":
+            # Wasilisha Malalamiko (re-use existing submit complaint flow)
+            next_state = SUBMIT_DEPT
+            reply = (
+                "Chagua idara inayohusika na malalamiko yako:\n"
+                "1️⃣ Ardhi\n"
+                "2️⃣ Umeme\n"
+                "3️⃣ Afya\n"
+                "4️⃣ Maji\n"
+                "5️⃣ Biashara na Soko"
+            )
         else:
-            reply = _invalid_option(lang)
+            reply = _invalid_option("sw")
         return next_state, ctx, reply
 
     # ----- Check status: department -> ID type -> ID value -----
