@@ -57,39 +57,29 @@ def send_image_with_caption(to, image_path, caption):
     caption: text under the image (max 1024 chars; can be empty).
     Returns API response dict or {"error": "..."} on failure.
     """
-    from pathlib import Path
     to = _normalize_phone(to)
     if not to:
         print("📤 Image skipped: no valid phone number")
         return {"error": "no_phone"}
-    path = Path(image_path) if image_path else None
-    if not path or not path.exists():
-        print("📤 Image skipped: file not found", path)
-        return {"error": "file_not_found"}
-    url_upload = f"https://graph.facebook.com/v21.0/{PHONE_ID}/media"
-    headers_upload = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-    try:
-        with open(path, "rb") as f:
-            files = {"file": (path.name, f, "image/png")}
-            data = {"type": "image/png", "messaging_product": "whatsapp"}
-            r = requests.post(url_upload, headers=headers_upload, data=data, files=files, timeout=30)
-        if r.status_code != 200:
-            print("📤 Media upload failed:", r.status_code, r.text[:300])
-            return {"error": "upload_failed", "status": r.status_code}
-        media_id = (r.json() or {}).get("id")
-        if not media_id:
-            print("📤 Media upload: no id in response", r.text[:200])
-            return {"error": "no_media_id"}
-    except Exception as e:
-        print("📤 Media upload failed:", e)
-        return {"error": str(e)}
     url_send = f"https://graph.facebook.com/v21.0/{PHONE_ID}/messages"
     headers_send = {"Authorization": f"Bearer {ACCESS_TOKEN}", "Content-Type": "application/json"}
+    # If image_path is a URL, send by link; otherwise you could extend this to upload media.
+    if not image_path or not str(image_path).strip():
+        print("📤 Image skipped: no image URL/path provided")
+        return {"error": "no_image"}
+    image_source = str(image_path).strip()
+    image_obj = {}
+    if image_source.startswith("http://") or image_source.startswith("https://"):
+        image_obj["link"] = image_source
+    else:
+        # For now we only support sending by URL (no local upload in this helper).
+        print("📤 Image skipped: only URL is supported in image_path right now ->", image_source)
+        return {"error": "unsupported_image_source"}
     payload = {
         "messaging_product": "whatsapp",
         "to": to,
         "type": "image",
-        "image": {"id": media_id},
+        "image": image_obj,
     }
     if caption and str(caption).strip():
         payload["image"]["caption"] = (str(caption).strip()[:1024])
