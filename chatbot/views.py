@@ -3,7 +3,7 @@ import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-from .utils import send_message
+from .utils import send_message, send_image_with_caption
 from .models import ChatSession
 from .flow import process_message, WELCOME, get_welcome_message
 
@@ -78,6 +78,12 @@ def webhook(request):
                     # Guarantee a response (fallback welcome if reply ever empty)
                     if not (reply_text or "").strip():
                         reply_text = get_welcome_message(session.language or "sw")
+                    # Send logo with welcome when this is the main-menu welcome message
+                    welcome_text = get_welcome_message(session.language or "sw")
+                    if (reply_text or "").strip() == (welcome_text or "").strip():
+                        logo_path = getattr(settings, "LOGO_PATH", None)
+                        if logo_path:
+                            send_image_with_caption(phone, logo_path, "Karibu Wilaya ya Chemba! 👋")
                     send_message(phone, reply_text)
                     print(f"✅ Reply sent to {phone} (state={next_state})")
 
