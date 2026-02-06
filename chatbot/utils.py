@@ -84,10 +84,15 @@ def send_image_with_caption(to, image_path, caption):
     if caption and str(caption).strip():
         payload["image"]["caption"] = (str(caption).strip()[:1024])
     try:
+        print("📤 Sending logo image to", to, "| link:", image_source[:60] + "...")
         r = requests.post(url_send, headers=headers_send, json=payload, timeout=15)
         data = r.json() if r.text else {}
-        print("📤 Image sent:", r.status_code, "to=" + to)
+        if r.status_code == 200 and data.get("messages"):
+            print("✅ Logo image sent successfully to", to, "| message_id:", data.get("messages", [{}])[0].get("id", ""))
+        else:
+            err = data.get("error", {})
+            print("❌ Logo image failed to", to, "| status:", r.status_code, "| error:", err.get("message", data))
         return data
     except Exception as e:
-        print("📤 Image send failed:", e)
+        print("❌ Logo image send failed to", to, "| exception:", e)
         return {"error": str(e)}

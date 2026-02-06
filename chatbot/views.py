@@ -78,14 +78,25 @@ def webhook(request):
                     # Guarantee a response (fallback welcome if reply ever empty)
                     if not (reply_text or "").strip():
                         reply_text = get_welcome_message(session.language or "sw")
-                    # Send logo (by URL) with a short caption when this is the main-menu welcome message
+                    # Whenever we show the main-menu welcome (first time or after #), send logo image then welcome text
                     welcome_text = get_welcome_message(session.language or "sw")
-                    if (reply_text or "").strip() == (welcome_text or "").strip():
+                    is_welcome_reply = (reply_text or "").strip() == (welcome_text or "").strip()
+                    if is_welcome_reply:
                         logo_url = getattr(settings, "LOGO_URL", None)
                         if logo_url:
-                            send_image_with_caption(phone, logo_url, "Karibu Wilaya ya Chemba! 👋")
+                            print("🖼️ Sending welcome: logo image + welcome SMS to", phone)
+                            result = send_image_with_caption(phone, logo_url, "Karibu Wilaya ya Chemba! 👋")
+                            if result.get("error"):
+                                print("⚠️ Welcome logo failed for", phone, "|", result.get("error"))
+                            else:
+                                print("✅ Welcome logo sent to", phone)
+                        else:
+                            print("⚠️ LOGO_URL not set; skipping welcome image for", phone)
                     send_message(phone, reply_text)
-                    print(f"✅ Reply sent to {phone} (state={next_state})")
+                    if is_welcome_reply:
+                        print("✅ Welcome SMS sent to", phone, "(state=" + next_state + ")")
+                    else:
+                        print("✅ Reply sent to", phone, "(state=" + next_state + ")")
 
         return HttpResponse("EVENT_RECEIVED", status=200)
     except Exception as e:
