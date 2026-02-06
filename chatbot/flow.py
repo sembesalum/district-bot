@@ -5,7 +5,8 @@ Single database stores session only; all responses are static/simple.
 import re
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.conf import settings
 
 # ---- States ----
 WELCOME = "welcome"
@@ -170,6 +171,67 @@ def _generate_ticket_id():
     return "DCT-" + "".join(random.choices(string.digits, k=5))
 
 
+def _ticket_status_message(ctx, lang="sw"):
+    """
+    Build a status message for the last submitted complaint/ticket based on
+    the stored context (ticket_id, ticket_message, ticket_timestamp).
+    Includes a 30-minute SLA style explanation and support contact if available.
+    """
+    ticket_id = ctx.get("ticket_id")
+    if not ticket_id:
+        # No ticket in this session yet
+        return _t(
+            lang,
+            "You don't have a recent complaint recorded in this chat.\nPlease submit a new complaint from the main menu option 7.",
+            "Huna malalamiko ya hivi karibuni yaliyoandikwa kwenye mazungumzo haya.\nTafadhali wasilisha malalamiko mapya kupitia chaguo la 7 kwenye menyu kuu.",
+        )
+
+    ticket_id = ctx.get("ticket_id", "N/A")
+    ticket_message = ctx.get("ticket_message", "")[:80]
+    ticket_timestamp = ctx.get("ticket_timestamp", "")
+    ticket_label = _t(lang, "Ticket ID", "Kitambulisho")
+    msg_label = _t(lang, "Message", "Ujumbe")
+    recv_label = _t(lang, "Received", "Ilipokelewa")
+
+    base = f"{ticket_label}: {ticket_id}\n{msg_label}: {ticket_message}...\n{recv_label}: {ticket_timestamp}"
+
+    extra = ""
+    try:
+        if ticket_timestamp:
+            submitted = datetime.strptime(ticket_timestamp, "%Y-%m-%d %H:%M")
+            now = datetime.utcnow()
+            diff_minutes = max(0, (now - submitted).total_seconds() / 60.0)
+            answer_time = submitted + timedelta(minutes=30)
+            answer_time_str = answer_time.strftime("%H:%M")
+            if diff_minutes < 30:
+                # Under 30 minutes – remind expected answer window
+                extra = _t(
+                    lang,
+                    f"\n\nYour complaint was received at {ticket_timestamp}.\nYou will receive an answer by {answer_time_str} (within 30 minutes).",
+                    f"\n\nMalalamiko yako yalipokelewa saa {ticket_timestamp}.\nUtapokea majibu kabla ya saa {answer_time_str} (ndani ya dakika 30).",
+                )
+            else:
+                # More than 30 minutes – advise to contact support with phone number if configured
+                support_phone = getattr(settings, "SUPPORT_PHONE", None)
+                if support_phone:
+                    extra = _t(
+                        lang,
+                        f"\n\nIt has been more than 30 minutes since you submitted your complaint.\nFor further assistance, please call: {support_phone}.",
+                        f"\n\nImepita zaidi ya dakika 30 tangu ulipowasilisha malalamiko yako.\nKwa msaada zaidi, tafadhali piga simu: {support_phone}.",
+                    )
+                else:
+                    extra = _t(
+                        lang,
+                        "\n\nIt has been more than 30 minutes since you submitted your complaint.\nPlease contact the district office for further assistance.",
+                        "\n\nImepita zaidi ya dakika 30 tangu ulipowasilisha malalamiko yako.\nTafadhali wasiliana na ofisi ya wilaya kwa msaada zaidi.",
+                    )
+    except Exception:
+        # If parsing or timing fails, just return the base info without timing text.
+        extra = ""
+
+    return base + extra
+
+
 def _validate_ref_number(text):
     """Accept alphanumeric reference, e.g. REF-12345 or similar."""
     return bool(re.match(r"^[A-Za-z0-9\-/]+$", (text or "").strip())) and len((text or "").strip()) >= 3
@@ -205,7 +267,8 @@ def get_main_menu(lang="sw"):
         "4️⃣ Fursa zilizopo katika Wilaya\n"
         "5️⃣ Maswali ya Haraka\n"
         "6️⃣ Angalia Hali ya Maombi\n"
-        "7️⃣ Wasilisha Malalamiko\n\n"
+        "7️⃣ Wasilisha Malalamiko\n"
+        "8️⃣ Fuatilia Malalamiko Yangu\n\n"
         "🔁 Jibu # kuanza upya wakati wowote."
     )
 
@@ -388,6 +451,13 @@ def process_message(session_state, session_context, session_language, user_messa
                 "4️⃣ Maji\n"
                 "5️⃣ Biashara na Soko"
             )
+        elif msg == "8":
+            # Fuatilia Malalamiko Yangu – same tracking logic as ticket tracking
+            next_state = TRACK_TICKET
+            lang = session_language or "sw"
+            main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
+            status_text = _ticket_status_message(ctx, lang)
+            reply = f"{status_text}\n\n{main_menu_opt}"
         else:
             reply = _invalid_option("sw")
         return next_state, ctx, reply
@@ -508,7 +578,11 @@ def process_message(session_state, session_context, session_language, user_messa
         ctx["ticket_timestamp"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
         ctx["ticket_dept"] = ctx.get("submit_dept", "other")
         next_state = SUBMIT_CONFIRMED_OPTIONS
-        received = _t(lang, "Your message has been received.\n", "Ujumbe wako umepokelewa.\n")
+        received = _t(
+            lang,
+            "Your message has been received.\n",
+            "Ujumbe wako umepokelewa, tutakurudia baada ya nusu saa na majibu sahihi.\n",
+        )
         track_prompt = _t(lang, f"Ticket ID: {ticket_id}\n\n1️⃣ Main menu\n2️⃣ Track my ticket", f"Kitambulisho: {ticket_id}\n\n1️⃣ Menyu kuu\n2️⃣ Fuatilia tiketi yangu")
         reply = received + track_prompt
         return next_state, ctx, reply
@@ -522,13 +596,8 @@ def process_message(session_state, session_context, session_language, user_messa
             reply = get_main_menu(lang)
         elif msg == "2":
             next_state = TRACK_TICKET
-            tid = ctx.get("ticket_id", "N/A")
-            tmsg = ctx.get("ticket_message", "")[:80]
-            ttime = ctx.get("ticket_timestamp", "")
-            ticket_label = _t(lang, "Ticket ID", "Kitambulisho")
-            msg_label = _t(lang, "Message", "Ujumbe")
-            recv_label = _t(lang, "Received", "Ilipokelewa")
-            reply = f"{ticket_label}: {tid}\n{msg_label}: {tmsg}...\n{recv_label}: {ttime}\n\n{main_menu_opt}"
+            status_text = _ticket_status_message(ctx, lang)
+            reply = f"{status_text}\n\n{main_menu_opt}"
         else:
             reply = main_menu_only
         return next_state, ctx, reply
