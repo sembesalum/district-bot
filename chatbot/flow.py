@@ -216,8 +216,8 @@ def _ticket_status_message(ctx, lang="sw"):
                 if support_phone:
                     extra = _t(
                         lang,
-                        f"\n\nIt has been more than 30 minutes since you submitted your complaint.\nFor further assistance, please call: {support_phone}.",
-                        f"\n\nImepita zaidi ya dakika 30 tangu ulipowasilisha malalamiko yako.\nKwa msaada zaidi, tafadhali piga simu: {support_phone}.",
+                        f"\n\nIt has been more than 30 minutes since you submitted your complaint.\nPlease contact the district office for further assistance at: {support_phone}.",
+                        f"\n\nImepita zaidi ya dakika 30 tangu ulipowasilisha malalamiko yako.\nTafadhali wasiliana na ofisi ya wilaya kwa msaada zaidi kupitia: {support_phone}.",
                     )
                 else:
                     extra = _t(
@@ -419,12 +419,34 @@ def process_message(session_state, session_context, session_language, user_messa
             )
             next_state = MAIN_MENU
         elif msg == "5":
-            # Maswali ya Haraka (placeholder based on taarifa.md kichwa)
+            # Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ)
             reply = (
-                "5️⃣ Maswali ya Haraka\n\n"
-                "Sehemu hii inahusu maswali ya msingi kuhusu Wilaya ya Chemba, huduma na fursa zake.\n"
-                "Kwa sasa tafadhali tumia menyu kuu kuchagua eneo unalotaka kupata taarifa zaidi, "
-                "au wasiliana na Halmashauri ya Wilaya kwa ufafanuzi wa ziada.\n\n"
+                "5️⃣ Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ)\n\n"
+                "1. Wilaya ya Chemba ipo katika eneo gani na inapakana na wilaya zipi?\n"
+                "Wilaya ya Chemba ipo Mkoa wa Dodoma. Inapakana na Wilaya ya Kondoa (Kaskazini), Kiteto (Mashariki), Bahi (Kusini), Chamwino (Kusini Mashariki), Manyoni na Singida (Magharibi), na Hanang (Kaskazini Magharibi).\n\n"
+                "2. Muundo wa utawala wa Wilaya ya Chemba ukoje?\n"
+                "Wilaya ya Chemba ina Tarafa 4, Kata 26 na Vijiji 114 vinavyosimamiwa chini ya Halmashauri ya Wilaya ya Chemba.\n\n"
+                "3. Idadi ya watu wa Wilaya ya Chemba ni kiasi gani?\n"
+                "Wilaya ya Chemba ina wakazi wapatao 339,333, kati yao wanaume ni 170,837 na wanawake ni 168,496.\n\n"
+                "4. Je, Wilaya ya Chemba ina majimbo na halmashauri ngapi?\n"
+                "Wilaya ya Chemba ina Jimbo 1 la Uchaguzi na Halmashauri 1 ya Wilaya.\n\n"
+                "5. Dira na dhima ya Halmashauri ya Wilaya ya Chemba ni ipi?\n"
+                "Dira ni kuwa Halmashauri yenye utawala bora inayotoa huduma bora na kuchochea maendeleo endelevu ya kiuchumi na kijamii. Dhima ni kutoa utawala bora wa Serikali za Mitaa, kusimamia rasilimali kwa ufanisi na kuboresha utoaji wa huduma kwa wananchi.\n\n"
+                "6. Ni taasisi zipi za Serikali zinazopatikana ndani ya Wilaya ya Chemba?\n"
+                "Baadhi ya taasisi zilizopo ni TRA, TANESCO, VETA, RUWASA, TARURA, TFS, NIDA na RITA.\n\n"
+                "7. Huduma za afya zinapatikana vipi katika Wilaya ya Chemba?\n"
+                "Wilaya ina jumla ya vituo vya kutolea huduma za afya 54, ikijumuisha Hospitali 1, Vituo vya Afya 6 na Zahanati 47. Huduma kwa wazee wasiojiweza, mama wajawazito na watoto chini ya miaka 5 hutolewa bure.\n\n"
+                "8. Sekta ya elimu ikoje katika Wilaya ya Chemba?\n"
+                "Wilaya ina shule za msingi 118 na shule za sekondari 31. Ufaulu wa Darasa la Saba mwaka 2025 ulikuwa 88.6%, huku ufaulu wa Kidato cha Sita ukiwa 100%.\n\n"
+                "9. Je, kuna mikopo kwa wanawake, vijana na watu wenye ulemavu?\n"
+                "Ndiyo. Halmashauri hutoa mikopo isiyo na riba kupitia 10% ya mapato ya ndani. Mwaka wa fedha 2025/26 jumla ya Tsh 408,125,000 zilitolewa kwa vikundi vya wanawake, vijana na watu wenye ulemavu.\n\n"
+                "10. Ni masharti gani ya kuomba mikopo ya 10%?\n"
+                "Kikundi kiwe na wanachama 5 au zaidi, kiwe kimesajiliwa, kiwe na katiba, mradi halali, akaunti ya benki ya kikundi, na wanachama wasiwe na ajira rasmi. Vijana wawe na umri wa miaka 18–45.\n\n"
+                "11. Fursa za uwekezaji zinapatikana wapi katika Wilaya ya Chemba?\n"
+                "Fursa za uwekezaji zipo katika maeneo yaliyotengwa Mji wa Chemba, Paranga na Kambi ya Nyasa, yenye miundombinu ya umeme, barabara na mawasiliano.\n\n"
+                "12. Sekta ya kilimo na mifugo ina mchango gani kwa Wilaya?\n"
+                "Takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara. Huduma za ugani, mifugo na chanjo zinatolewa ili kuongeza uzalishaji na kipato cha wananchi.\n\n"
+                "Kwa maswali zaidi, tafadhali wasiliana na ofisi ya wilaya kwa msaada zaidi kupitia: 255 000 000 000.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
             next_state = MAIN_MENU

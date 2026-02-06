@@ -19,6 +19,9 @@ WHATSAPP_VERIFY_TOKEN = "district_verify"
 WHATSAPP_BUSINESS_ACCOUNT_ID = "1301319984813235"
 WHATSAPP_BUSINESS_ID = "172550735934266"
 
+# Support contact phone (used in complaint follow-up and FAQ responses)
+SUPPORT_PHONE = "255 000 000 000"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Logo image URL sent with welcome message
