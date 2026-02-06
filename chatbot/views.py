@@ -78,20 +78,22 @@ def webhook(request):
                     # Guarantee a response (fallback welcome if reply ever empty)
                     if not (reply_text or "").strip():
                         reply_text = get_welcome_message(session.language or "sw")
-                    # Whenever we show the main-menu welcome (first time or after #), send logo image then welcome text
+                    # Whenever we show the main-menu welcome (first time or after #): logo first, then welcome text only after
                     welcome_text = get_welcome_message(session.language or "sw")
                     is_welcome_reply = (reply_text or "").strip() == (welcome_text or "").strip()
                     if is_welcome_reply:
                         logo_url = getattr(settings, "LOGO_URL", None)
                         if logo_url:
-                            print("🖼️ Sending welcome: logo image + welcome SMS to", phone)
-                            result = send_image_with_caption(phone, logo_url, "Karibu Wilaya ya Chemba! 👋")
+                            print("🖼️ Sending welcome: logo first, then welcome SMS to", phone)
+                            result = send_image_with_caption(phone, logo_url, "")
                             if result.get("error"):
                                 print("⚠️ Welcome logo failed for", phone, "|", result.get("error"))
                             else:
                                 print("✅ Welcome logo sent to", phone)
+                            # Welcome text is sent below so logo always appears first
                         else:
                             print("⚠️ LOGO_URL not set; skipping welcome image for", phone)
+                    # Send text: for welcome we send only after logo above, so logo always comes first
                     send_message(phone, reply_text)
                     if is_welcome_reply:
                         print("✅ Welcome SMS sent to", phone, "(state=" + next_state + ")")
