@@ -11,6 +11,7 @@ from django.conf import settings
 # ---- States ----
 WELCOME = "welcome"
 MAIN_MENU = "main_menu"
+COUNCIL_MENU = "council_menu"  # Sub-menu for option 3 (Halmashauri ya Wilaya)
 LANGUAGE_CHOICE = "language_choice"
 # Check status
 CHECK_DEPT = "check_dept"
@@ -379,102 +380,24 @@ def process_message(session_state, session_context, session_language, user_messa
             )
             next_state = MAIN_MENU
         elif msg == "3":
-            # Halmashauri ya Wilaya – full content from taarifa.md
+            # Halmashauri ya Wilaya – open sub-menu to avoid long single message
+            next_state = COUNCIL_MENU
             reply = (
                 "3️⃣ Halmashauri ya Wilaya ya Chemba\n\n"
-                "Halmashauri ina idara na vitengo 20 ambazo hutekeleza majukumu mbalimbali kama ilivyoainishwa hapa chini:\n\n"
-                "i. Idara ya Huduma za Afya, Ustawi wa Jamii na Lishe:\n"
-                "• Hospitali, vituo vya afya na zahanati: 54 (Hospitali 1, Vituo vya Afya 6 na Zahanati 47).\n"
-                "• Upatikanaji wa dawa: 52%.\n"
-                "• Huduma kwa wazee na watoto: Huduma kwa wazee wasiojiweza, mama mjamzito na watoto chini ya miaka 5 zinatolewa bure.\n"
-                "• Rasilimali watu katika sekta ya afya: 282.\n\n"
-                "ii. Idara ya Elimu ya Awali na Msingi:\n"
-                "• Shule za Msingi: 118.\n"
-                "• Uandikishaji Darasa la Awali na la Kwanza: Awali 7,548 (61%) na Darasa la Kwanza 9,172 (76%).\n"
-                "• Walimu na mazingira ya kujifunzia: 878.\n"
-                "• Ufaulu wa Darasa la Saba: Mwaka 2025 ni 88.6%.\n\n"
-                "iii. Idara ya Elimu ya Sekondari:\n"
-                "• Shule za Sekondari: 31.\n"
-                "• Udahili Kidato cha Kwanza: 4,495.\n"
-                "• Walimu wa Sekondari: 391.\n"
-                "• Ufaulu wa Kidato cha Pili, Nne na Sita: II - 79.4%, IV - 94%, VI - 100%.\n\n"
-                "iv. Idara ya Mipango na Uratibu:\n"
-                "Idara hii inajihusisha na usimamizi wa miradi ya maendeleo ambapo kwa mwaka wa fedha 2025/26 jumla ya Tsh "
-                "3,582,222,007 zimepokelewa kutoka Serikali Kuu na wahisani kwa ajili ya kutekeleza miradi mbalimbali ya maendeleo. "
-                "Baadhi ya miradi mikubwa iliyopokea fedha ni: Ujenzi wa shule 3 mpya za Msingi (Chemba - 397,200,000; Kidoka - "
-                "302,200,000; Soya - 302,200,000), Ujenzi wa Stendi ya mabasi katika mji wa Chemba - 650,000,000/=, na Ujenzi wa "
-                "nyumba 2 za watumishi wa Afya (Hospitali ya Wilaya, nyumba 3-in-1) sh. 300,000,000/=.\n\n"
-                "v. Idara ya Viwanda, Biashara na Uwekezaji:\n"
-                "• Leseni za biashara (TAUSI): 721 sawa na asilimia 30%.\n"
-                "• Viwanda vidogo na vya kati: Kati 03 na vidogo 543.\n"
-                "• Fursa za uwekezaji: Uwepo wa maeneo yaliyotengwa kwa ajili ya viwanda katika mji wa Chemba, Paranga na Kambi ya Nyasa.\n"
-                "• Miundombinu wezeshi (umeme, barabara, mawasiliano): Miundombinu ipo na maeneo yanafikika.\n\n"
-                "vi. Idara ya Maendeleo ya Jamii:\n"
-                "• Mikopo isiyo na riba (10% ya mapato ya ndani): Fedha zilizokopeshwa kwa mwaka wa fedha 2025/26 ni Tsh 408,125,000.\n"
-                "• Wanufaika: wanawake, vijana na watu wenye ulemavu.\n"
-                "• Masharti na hatua za kuomba: Kikundi kiwe na idadi ya watu 5 au zaidi; wanakikundi wawe na umri wa kuanzia miaka "
-                "18 na kuendelea kwa vikundi vya wanawake na wenye ulemavu, na miaka 18–45 kwa vikundi vya vijana; kikundi kiwe "
-                "kimesajiliwa na kupata cheti; kiwe na katiba; kiwe na shughuli (mradi); kiwe na akaunti ya benki iliyofunguliwa "
-                "kwa jina la kikundi; wanakikundi wasiwe na ajira rasmi; na kwa walemavu kuanzia mtu 1.\n\n"
-                "vii. Idara ya Kilimo, Mifugo na Uvuvi:\n"
-                "• Mazao ya biashara na chakula: 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara.\n"
-                "• Huduma za ugani kwa wakulima: 65%.\n"
-                "• Huduma za mifugo (chanjo, tiba, usimamizi wa malisho): 68%.\n"
-                "• Ufugaji wa kisasa na uzalishaji wa mifugo: Ufugaji wa kisasa 24%.\n"
-                "• Uvuvi na ufugaji wa samaki na fursa za mikopo kwa vikundi vya wakulima/wafugaji (kwa ujumla zinaendelezwa na Halmashauri).\n\n"
-                "viii. Idara ya Miundombinu, Maendeleo ya Vijijini na Mjini:\n"
-                "Idara hii ina jukumu la kusimamia miradi mbalimbali ya maendeleo, kuandaa makadirio ya gharama za ujenzi, ukaguzi "
-                "na utoaji wa vibali vya ujenzi wa majengo ya Serikali, taasisi na watu binafsi. Mpaka sasa idara inasimamia miradi "
-                "47 iliyopata fedha kutoka Serikali Kuu na wahisani.\n\n"
-                "ix. Idara ya Utawala na Usimamizi wa Rasilimali Watu:\n"
-                "Idara hii ina jukumu la kusimamia masuala ya kiutawala na rasilimali watu, ikiwemo kusimamia nidhamu za watumishi "
-                "mahali pa kazi na kuhakikisha idadi ya watumishi waliopo inaendana na mahitaji ya ofisi. Mpaka sasa watumishi "
-                "waliopo kwa kada mbalimbali ni 1,921.\n\n"
-                "x. Kitengo cha Udhibiti wa Taka Ngumu na Usafi wa Mazingira:\n"
-                "Kitengo hiki kina jukumu la kudhibiti taka ngumu na kuuweka mji katika hali nzuri, pamoja na kusimamia uoteshaji wa "
-                "vitalu vya miti na upandaji miti katika taasisi za Serikali, shule za msingi na sekondari. Mpaka sasa jumla ya "
-                "miche 260,000 imepandwa katika taasisi mbalimbali kati ya lengo la kupanda miti 500,000 kwa mwaka.\n\n"
-                "xi. Kitengo cha Mali Asili na Hifadhi ya Mazingira:\n"
-                "Kitengo hiki kina jukumu la kusimamia shughuli zote za mali asili ikijumuisha misitu, nyuki, wanyamapori na mazingira, "
-                "pamoja na kutoa elimu kwa jamii juu ya uhifadhi endelevu wa rasilimali za misitu. Mpaka sasa Halmashauri ina misitu "
-                "ya vijiji 16 iliyohifadhiwa pamoja na pori 1 la akiba Swagaswaga, pamoja na hifadhi za nyuki 4 katika vijiji vya "
-                "Jogolo, Baaba, Sanzawa na Mialo.\n\n"
-                "xii. Kitengo cha Michezo, Utamaduni na Sanaa:\n"
-                "Kitengo hiki kinasimamia masuala ya michezo, utamaduni na sanaa, kuibua vipaji kutoka kwenye jamii na kuvilea, na "
-                "kutoa elimu juu ya umuhimu wa michezo na utunzaji wa utamaduni wa jamii.\n\n"
-                "xiii. Kitengo cha Uchaguzi:\n"
-                "• Kuratibu shughuli zote zihusuzo uchaguzi (uchaguzi wa Serikali za Mitaa, uchaguzi mkuu na chaguzi ndogo zote "
-                "zitakazojitokeza baada ya uchaguzi kufanyika).\n"
-                "• Kuratibu mazoezi yote ya uboreshaji wa daftari la kudumu la wapiga kura kwa uchaguzi mkuu na orodha ya wapiga kura "
-                "kwa uchaguzi wa Serikali za Mitaa.\n"
-                "• Kumshauri Mkurugenzi juu ya masuala yote yahusuyo uchaguzi katika Halmashauri ili kuwezesha mazoezi hayo kufanyika "
-                "kwa mujibu wa sheria.\n\n"
-                "xiv. Kitengo cha Uhasibu:\n"
-                "Kitengo hiki kinasimamia mapato ya ndani ya Halmashauri ambapo kwa kipindi cha miaka 2 mfululizo Halmashauri imevuka "
-                "lengo la kukusanya mapato yake ya ndani kwa 100%; mwaka 2023/2024 - 110% na 2024/2025 - 117%. Mpaka sasa "
-                "Halmashauri imekusanya mapato kwa 63% ya lengo la kukusanya 100% kwa mwaka huu.\n\n"
-                "xv. Kitengo cha Sheria:\n"
-                "Kitengo hiki kinasimamia masuala mbalimbali ya kisheria yanayohusu Halmashauri ambapo jumla ya kesi 6 zinasimamiwa "
-                "na kitengo cha Sheria.\n\n"
-                "xvi. Kitengo cha Ukaguzi wa Ndani:\n"
-                "Kitengo hiki kina jukumu la kutathmini michakato ya kifedha, uendeshaji na usimamizi wa Halmashauri, kupima udhibiti "
-                "wa ndani, kutoa taarifa ya matokeo ya ukaguzi kwa uongozi (management) na kamati ya ukaguzi, na kupendekeza "
-                "uboreshaji wa utendaji kazi.\n\n"
-                "xvii. Kitengo cha Usimamizi wa Ununuzi:\n"
-                "Kitengo hiki kina jukumu la kusimamia sheria, kanuni na taratibu za ununuzi, pamoja na kusimamia mikataba yote ya "
-                "utekelezaji wa miradi kati ya wazabuni na mafundi wa Halmashauri pamoja na ngazi za chini. Mpaka sasa kitengo "
-                "kimefanikiwa kusimamia mikataba 47 ya miradi ya maendeleo inayoendelea kutekelezwa kwa mwaka wa fedha 2025/26.\n\n"
-                "xviii. Kitengo cha Tehama:\n"
-                "Kitengo hiki kina jukumu la kusimamia mifumo yote inayotumika ndani ya Halmashauri, ikiwemo TAUSI, GOTHOMIS, "
-                "IFTMIS, SIS na e-UTENDAJI (PEPMIS na PlanRep).\n\n"
-                "xix. Kitengo cha Mawasiliano Serikalini:\n"
-                "Kitengo hiki kina jukumu la kutoa taarifa kwa umma kuhusu shughuli mbalimbali zinazotekelezwa na Halmashauri na Serikali kwa ujumla.\n\n"
-                "xx. Kitengo cha Ufuatiliaji na Tathmini:\n"
-                "Kitengo hiki kina jukumu la kufuatilia na kufanya tathmini ya miradi ya maendeleo inayotekelezwa katika Halmashauri "
-                "ili kuhakikisha miradi inakamilika kwa wakati na kwa ubora uliokusudiwa. Kwa sasa miradi inayoendelea kusimamiwa ni 47.\n\n"
-                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+                "Halmashauri ina idara na vitengo 20 vinavyotekeleza majukumu mbalimbali.\n\n"
+                "Chagua idara au kitengo unachotaka kujua zaidi:\n"
+                "1️⃣ Afya, Ustawi wa Jamii na Lishe\n"
+                "2️⃣ Elimu ya Awali na Msingi\n"
+                "3️⃣ Elimu ya Sekondari\n"
+                "4️⃣ Mipango na Uratibu\n"
+                "5️⃣ Viwanda, Biashara na Uwekezaji\n"
+                "6️⃣ Maendeleo ya Jamii\n"
+                "7️⃣ Kilimo, Mifugo na Uvuvi\n"
+                "8️⃣ Miundombinu, Maendeleo ya Vijijini na Mjini\n"
+                "9️⃣ Utawala na Rasilimali Watu\n"
+                "🔟 Vitengo vingine (Taka, Mazingira, Michezo, Uchaguzi, Uhasibu, Sheria, Ukaguzi, Ununuzi, Tehama, Mawasiliano, Ufuatiliaji na Tathmini)\n\n"
+                "👉 Jibu kwa namba ya idara (1–10), au jibu 0 kurudi kwenye menyu kuu."
             )
-            next_state = MAIN_MENU
         elif msg == "4":
             # Fursa zilizopo katika Wilaya – content from taarifa.md (plus brief explanation)
             reply = (
@@ -548,6 +471,161 @@ def process_message(session_state, session_context, session_language, user_messa
             reply = f"{status_text}\n\n{main_menu_opt}"
         else:
             reply = _invalid_option("sw")
+        return next_state, ctx, reply
+
+    # ----- Halmashauri sub-menu (option 3) -----
+    if state == COUNCIL_MENU:
+        lang = session_language or "sw"
+        # 0 = back to main menu listing of Halmashauri options
+        if msg == "0":
+            next_state = MAIN_MENU
+            reply = get_main_menu(lang)
+            return next_state, ctx, reply
+
+        # For all other numeric options, stay within COUNCIL_MENU
+        next_state = COUNCIL_MENU
+        back_hint = "\n\n👉 Jibu 3 kurudi kwenye orodha ya Halmashauri, au jibu # kurudi kwenye menyu kuu."
+
+        if msg == "1":
+            # Afya, Ustawi wa Jamii na Lishe
+            reply = (
+                "i. Idara ya Huduma za Afya, Ustawi wa Jamii na Lishe\n\n"
+                "• Hospitali, vituo vya afya na zahanati: jumla ya vituo 54 (Hospitali 1, Vituo vya Afya 6 na Zahanati 47).\n"
+                "• Upatikanaji wa dawa: 52%.\n"
+                "• Huduma kwa wazee na watoto: Huduma kwa wazee wasiojiweza, mama wajawazito na watoto chini ya miaka 5 zinatolewa bure.\n"
+                "• Rasilimali watu katika sekta ya afya: 282.\n"
+            ) + back_hint
+        elif msg == "2":
+            # Elimu ya Awali na Msingi
+            reply = (
+                "ii. Idara ya Elimu ya Awali na Msingi\n\n"
+                "• Shule za Msingi: 118.\n"
+                "• Uandikishaji Darasa la Awali na la Kwanza: Awali 7,548 (61%) na Darasa la Kwanza 9,172 (76%).\n"
+                "• Walimu na mazingira ya kujifunzia: walimu 878.\n"
+                "• Ufaulu wa Darasa la Saba: Mwaka 2025 ni 88.6%.\n"
+            ) + back_hint
+        elif msg == "3":
+            # Elimu ya Sekondari
+            reply = (
+                "iii. Idara ya Elimu ya Sekondari\n\n"
+                "• Shule za Sekondari: 31.\n"
+                "• Udahili Kidato cha Kwanza: 4,495.\n"
+                "• Walimu wa Sekondari: 391.\n"
+                "• Ufaulu wa mitihani ya Taifa: Kidato cha Pili 79.4%, Kidato cha Nne 94%, Kidato cha Sita 100%.\n"
+            ) + back_hint
+        elif msg == "4":
+            # Mipango na Uratibu
+            reply = (
+                "iv. Idara ya Mipango na Uratibu\n\n"
+                "Idara hii inajihusisha na usimamizi wa miradi ya maendeleo.\n"
+                "Kwa mwaka wa fedha 2025/26, jumla ya Tsh 3,582,222,007 zimepokelewa kutoka Serikali Kuu na wahisani kwa ajili ya "
+                "kutekeleza miradi mbalimbali ya maendeleo.\n\n"
+                "Baadhi ya miradi mikubwa iliyopokea fedha ni:\n"
+                "• Ujenzi wa shule 3 mpya za Msingi:\n"
+                "  - Chemba: Tsh 397,200,000\n"
+                "  - Kidoka: Tsh 302,200,000\n"
+                "  - Soya: Tsh 302,200,000\n"
+                "• Ujenzi wa Stendi ya mabasi katika mji wa Chemba: Tsh 650,000,000\n"
+                "• Ujenzi wa nyumba 2 za watumishi wa Afya (Hospitali ya Wilaya, nyumba 3-in-1): Tsh 300,000,000\n"
+            ) + back_hint
+        elif msg == "5":
+            # Viwanda, Biashara na Uwekezaji
+            reply = (
+                "v. Idara ya Viwanda, Biashara na Uwekezaji\n\n"
+                "• Leseni za biashara (TAUSI): 721 sawa na takribani 30% ya walengwa.\n"
+                "• Viwanda vidogo na vya kati: viwanda vya kati 3 na vidogo 543.\n"
+                "• Fursa za uwekezaji: uwepo wa maeneo yaliyotengwa kwa ajili ya viwanda katika mji wa Chemba, Paranga na Kambi ya Nyasa.\n"
+                "• Miundombinu wezeshi: miundombinu ya umeme, barabara na mawasiliano ipo na maeneo yanafikika kwa urahisi.\n"
+            ) + back_hint
+        elif msg == "6":
+            # Maendeleo ya Jamii
+            reply = (
+                "vi. Idara ya Maendeleo ya Jamii\n\n"
+                "• Mikopo isiyo na riba (10% ya mapato ya ndani): Fedha zilizokopeshwa kwa mwaka wa fedha 2025/26 ni Tsh 408,125,000.\n"
+                "• Wanufaika: wanawake, vijana na watu wenye ulemavu.\n"
+                "• Masharti na hatua za kuomba mikopo:\n"
+                "  - Kikundi kiwe na idadi ya watu 5 au zaidi.\n"
+                "  - Wanakikundi wawe na umri wa kuanzia miaka 18 na kuendelea kwa vikundi vya wanawake na wenye ulemavu, "
+                "na miaka 18–45 kwa vikundi vya vijana.\n"
+                "  - Kikundi kiwe kimesajiliwa na kupata cheti na kiwe na katiba.\n"
+                "  - Kikundi kiwe na shughuli (mradi) halali.\n"
+                "  - Kikundi kiwe na akaunti ya benki iliyofunguliwa kwa jina la kikundi.\n"
+                "  - Wanakikundi wasiwe na ajira rasmi.\n"
+                "  - Kwa vikundi vya watu wenye ulemavu, kuanzia mshiriki 1 na kuendelea.\n"
+            ) + back_hint
+        elif msg == "7":
+            # Kilimo, Mifugo na Uvuvi
+            reply = (
+                "vii. Idara ya Kilimo, Mifugo na Uvuvi\n\n"
+                "• Mazao ya biashara na chakula: takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara.\n"
+                "• Huduma za ugani kwa wakulima: 65%.\n"
+                "• Huduma za mifugo (chanjo, tiba, usimamizi wa malisho): 68%.\n"
+                "• Ufugaji wa kisasa na uzalishaji wa mifugo: ufugaji wa kisasa unakadiriwa kufikia 24%.\n"
+                "• Uvuvi na ufugaji wa samaki pamoja na fursa za mikopo na vikundi vya wakulima/wafugaji vinaendelezwa na Halmashauri.\n"
+            ) + back_hint
+        elif msg == "8":
+            # Miundombinu, Maendeleo ya Vijijini na Mjini
+            reply = (
+                "viii. Idara ya Miundombinu, Maendeleo ya Vijijini na Mjini\n\n"
+                "Idara hii ina jukumu la kusimamia miradi mbalimbali ya maendeleo, kuandaa makadirio ya gharama za ujenzi, kufanya "
+                "ukaguzi na kutoa vibali vya ujenzi wa majengo ya Serikali, taasisi na watu binafsi.\n"
+                "Mpaka sasa, idara inasimamia miradi 47 iliyopata fedha kutoka Serikali Kuu na kutoka kwa wahisani.\n"
+            ) + back_hint
+        elif msg == "9":
+            # Utawala na Rasilimali Watu
+            reply = (
+                "ix. Idara ya Utawala na Usimamizi wa Rasilimali Watu\n\n"
+                "Idara hii ina jukumu la kusimamia masuala ya kiutawala na rasilimali watu ndani ya Halmashauri.\n"
+                "Inahakikisha nidhamu ya watumishi mahali pa kazi, kupanga na kusimamia mahitaji ya watumishi kulingana na majukumu "
+                "ya ofisi.\n"
+                "Mpaka sasa, Halmashauri ina jumla ya watumishi 1,921 kwa kada mbalimbali.\n"
+            ) + back_hint
+        elif msg == "10":
+            # Vitengo vingine (grouped)
+            reply = (
+                "x–xx. Vitengo vingine vya Halmashauri ya Wilaya ya Chemba\n\n"
+                "x. Kitengo cha Udhibiti wa Taka Ngumu na Usafi wa Mazingira:\n"
+                "• Kudhibiti taka ngumu na kuuweka mji katika hali ya usafi.\n"
+                "• Kusimamia uoteshaji wa vitalu vya miti na upandaji miti katika taasisi za Serikali, shule za msingi na sekondari.\n"
+                "  Mpaka sasa jumla ya miche 260,000 imepandwa kati ya lengo la miti 500,000 kwa mwaka.\n\n"
+                "xi. Kitengo cha Mali Asili na Hifadhi ya Mazingira:\n"
+                "• Kusimamia shughuli za mali asili ikijumuisha misitu, nyuki, wanyamapori na mazingira.\n"
+                "• Kutoa elimu kwa jamii juu ya uhifadhi endelevu wa rasilimali za misitu.\n"
+                "  Halmashauri ina misitu ya vijiji 16 iliyohifadhiwa pamoja na pori 1 la akiba Swagaswaga, na hifadhi za nyuki 4 "
+                "katika vijiji vya Jogolo, Baaba, Sanzawa na Mialo.\n\n"
+                "xii. Kitengo cha Michezo, Utamaduni na Sanaa:\n"
+                "• Kusimamia michezo, utamaduni na sanaa.\n"
+                "• Kuibua na kulea vipaji kutoka kwenye jamii na kutoa elimu juu ya umuhimu wa michezo na utunzaji wa utamaduni.\n\n"
+                "xiii. Kitengo cha Uchaguzi:\n"
+                "• Kuratibu shughuli zote zihusuzo uchaguzi (Serikali za Mitaa, Uchaguzi Mkuu na chaguzi ndogo).\n"
+                "• Kuratibu mazoezi ya uboreshaji wa daftari la kudumu la wapiga kura na orodha za wapiga kura.\n"
+                "• Kumshauri Mkurugenzi juu ya masuala yote yahusuyo uchaguzi ndani ya Halmashauri.\n\n"
+                "xiv. Kitengo cha Uhasibu:\n"
+                "• Kusimamia mapato ya ndani ya Halmashauri.\n"
+                "• Kwa miaka 2 mfululizo, Halmashauri imevuka lengo la kukusanya mapato ya ndani: 2023/2024 - 110%, 2024/2025 - 117%.\n"
+                "  Mpaka sasa imekusanya 63% ya lengo la mwaka 2025/26.\n\n"
+                "xv. Kitengo cha Sheria:\n"
+                "• Kusimamia masuala mbalimbali ya kisheria yanayohusu Halmashauri.\n"
+                "• Kwa sasa, jumla ya kesi 6 zinasimamiwa na kitengo hiki.\n\n"
+                "xvi. Kitengo cha Ukaguzi wa Ndani:\n"
+                "• Kutathmini michakato ya kifedha, uendeshaji na usimamizi wa Halmashauri.\n"
+                "• Kupima udhibiti wa ndani na kutoa taarifa za ukaguzi kwa uongozi na kamati ya ukaguzi.\n"
+                "• Kupendekeza maboresho ya mifumo na utendaji kazi.\n\n"
+                "xvii. Kitengo cha Usimamizi wa Ununuzi:\n"
+                "• Kusimamia sheria, kanuni na taratibu za ununuzi.\n"
+                "• Kusimamia mikataba yote ya utekelezaji wa miradi kati ya wazabuni na mafundi wa Halmashauri, pamoja na ngazi za chini.\n"
+                "  Mpaka sasa kitengo kinasimamia mikataba 47 ya miradi ya maendeleo ya mwaka 2025/26.\n\n"
+                "xviii. Kitengo cha Tehama:\n"
+                "• Kusimamia mifumo yote ya TEHAMA ndani ya Halmashauri, ikiwemo TAUSI, GOTHOMIS, IFTMIS, SIS na e-UTENDAJI (PEPMIS na PlanRep).\n\n"
+                "xix. Kitengo cha Mawasiliano Serikalini:\n"
+                "• Kutoa taarifa kwa umma kuhusu shughuli mbalimbali zinazotekelezwa na Halmashauri na Serikali kwa ujumla.\n\n"
+                "xx. Kitengo cha Ufuatiliaji na Tathmini:\n"
+                "• Kufuatilia na kufanya tathmini ya miradi ya maendeleo inayotekelezwa katika Halmashauri ili kuhakikisha miradi "
+                "inakamilika kwa wakati na kwa ubora uliokusudiwa. Kwa sasa miradi 47 inaendelea kusimamiwa.\n"
+            ) + back_hint
+        else:
+            reply = _invalid_option(lang)
+
         return next_state, ctx, reply
 
     # ----- Check status: department -> ID type -> ID value -----
