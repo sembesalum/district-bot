@@ -381,6 +381,7 @@ def process_message(session_state, session_context, session_language, user_messa
             next_state = MAIN_MENU
         elif msg == "3":
             # Halmashauri ya Wilaya – open sub-menu to avoid long single message
+            ctx["council_mode"] = "menu"
             next_state = COUNCIL_MENU
             reply = (
                 "3️⃣ Halmashauri ya Wilaya ya Chemba\n\n"
@@ -476,10 +477,34 @@ def process_message(session_state, session_context, session_language, user_messa
     # ----- Halmashauri sub-menu (option 3) -----
     if state == COUNCIL_MENU:
         lang = session_language or "sw"
-        # 0 = back to main menu listing of Halmashauri options
+        mode = ctx.get("council_mode", "menu")
+
+        # 0 = back to main menu
         if msg == "0":
             next_state = MAIN_MENU
             reply = get_main_menu(lang)
+            return next_state, ctx, reply
+
+        # In detail mode, 3 = back to Halmashauri sub-menu list
+        if mode == "detail" and msg == "3":
+            ctx["council_mode"] = "menu"
+            next_state = COUNCIL_MENU
+            reply = (
+                "3️⃣ Halmashauri ya Wilaya ya Chemba\n\n"
+                "Halmashauri ina idara na vitengo 20 vinavyotekeleza majukumu mbalimbali.\n\n"
+                "Chagua idara au kitengo unachotaka kujua zaidi:\n"
+                "1️⃣ Afya, Ustawi wa Jamii na Lishe\n"
+                "2️⃣ Elimu ya Awali na Msingi\n"
+                "3️⃣ Elimu ya Sekondari\n"
+                "4️⃣ Mipango na Uratibu\n"
+                "5️⃣ Viwanda, Biashara na Uwekezaji\n"
+                "6️⃣ Maendeleo ya Jamii\n"
+                "7️⃣ Kilimo, Mifugo na Uvuvi\n"
+                "8️⃣ Miundombinu, Maendeleo ya Vijijini na Mjini\n"
+                "9️⃣ Utawala na Rasilimali Watu\n"
+                "🔟 Vitengo vingine (Taka, Mazingira, Michezo, Uchaguzi, Uhasibu, Sheria, Ukaguzi, Ununuzi, Tehama, Mawasiliano, Ufuatiliaji na Tathmini)\n\n"
+                "👉 Jibu kwa namba ya idara (1–10), au jibu 0 kurudi kwenye menyu kuu."
+            )
             return next_state, ctx, reply
 
         # For all other numeric options, stay within COUNCIL_MENU
@@ -495,6 +520,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "• Huduma kwa wazee na watoto: Huduma kwa wazee wasiojiweza, mama wajawazito na watoto chini ya miaka 5 zinatolewa bure.\n"
                 "• Rasilimali watu katika sekta ya afya: 282.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "2":
             # Elimu ya Awali na Msingi
             reply = (
@@ -504,6 +530,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "• Walimu na mazingira ya kujifunzia: walimu 878.\n"
                 "• Ufaulu wa Darasa la Saba: Mwaka 2025 ni 88.6%.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "3":
             # Elimu ya Sekondari
             reply = (
@@ -513,6 +540,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "• Walimu wa Sekondari: 391.\n"
                 "• Ufaulu wa mitihani ya Taifa: Kidato cha Pili 79.4%, Kidato cha Nne 94%, Kidato cha Sita 100%.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "4":
             # Mipango na Uratibu
             reply = (
@@ -528,6 +556,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "• Ujenzi wa Stendi ya mabasi katika mji wa Chemba: Tsh 650,000,000\n"
                 "• Ujenzi wa nyumba 2 za watumishi wa Afya (Hospitali ya Wilaya, nyumba 3-in-1): Tsh 300,000,000\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "5":
             # Viwanda, Biashara na Uwekezaji
             reply = (
@@ -537,6 +566,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "• Fursa za uwekezaji: uwepo wa maeneo yaliyotengwa kwa ajili ya viwanda katika mji wa Chemba, Paranga na Kambi ya Nyasa.\n"
                 "• Miundombinu wezeshi: miundombinu ya umeme, barabara na mawasiliano ipo na maeneo yanafikika kwa urahisi.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "6":
             # Maendeleo ya Jamii
             reply = (
@@ -553,6 +583,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "  - Wanakikundi wasiwe na ajira rasmi.\n"
                 "  - Kwa vikundi vya watu wenye ulemavu, kuanzia mshiriki 1 na kuendelea.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "7":
             # Kilimo, Mifugo na Uvuvi
             reply = (
@@ -563,6 +594,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "• Ufugaji wa kisasa na uzalishaji wa mifugo: ufugaji wa kisasa unakadiriwa kufikia 24%.\n"
                 "• Uvuvi na ufugaji wa samaki pamoja na fursa za mikopo na vikundi vya wakulima/wafugaji vinaendelezwa na Halmashauri.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "8":
             # Miundombinu, Maendeleo ya Vijijini na Mjini
             reply = (
@@ -571,6 +603,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "ukaguzi na kutoa vibali vya ujenzi wa majengo ya Serikali, taasisi na watu binafsi.\n"
                 "Mpaka sasa, idara inasimamia miradi 47 iliyopata fedha kutoka Serikali Kuu na kutoka kwa wahisani.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "9":
             # Utawala na Rasilimali Watu
             reply = (
@@ -580,6 +613,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "ya ofisi.\n"
                 "Mpaka sasa, Halmashauri ina jumla ya watumishi 1,921 kwa kada mbalimbali.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         elif msg == "10":
             # Vitengo vingine (grouped)
             reply = (
@@ -623,6 +657,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "• Kufuatilia na kufanya tathmini ya miradi ya maendeleo inayotekelezwa katika Halmashauri ili kuhakikisha miradi "
                 "inakamilika kwa wakati na kwa ubora uliokusudiwa. Kwa sasa miradi 47 inaendelea kusimamiwa.\n"
             ) + back_hint
+            ctx["council_mode"] = "detail"
         else:
             reply = _invalid_option(lang)
 
