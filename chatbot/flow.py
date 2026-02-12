@@ -53,8 +53,8 @@ def _t(lang, en, sw):
 def _invalid_option(lang="sw"):
     return _t(
         lang,
-        "Sorry, I didn't understand that.\nPlease reply with a valid option number.",
-        "Samahani, sikuweza kuelewa.\nTafadhali jibu kwa nambari sahihi.",
+        "Sorry, I didn't understand that.\nPlease reply with a valid option number, or reply # to return to the main menu.",
+        "Samahani, sikuweza kuelewa.\nTafadhali jibu kwa nambari sahihi, au jibu # kurudi kwenye menyu kuu.",
     )
 
 

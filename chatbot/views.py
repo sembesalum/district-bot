@@ -3,6 +3,7 @@ import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.utils import timezone
 from .utils import send_message, send_image_with_caption
 from .models import ChatSession
 from .flow import process_message, WELCOME, get_welcome_message
@@ -55,6 +56,15 @@ def webhook(request):
                     )
                     if not created:
                         session.refresh_from_db()
+                        # Auto-clear session after 10 minutes of inactivity
+                        try:
+                            last = session.updated_at
+                            if last and (timezone.now() - last).total_seconds() > 600:
+                                print("⌛ Session idle >10min for", phone, "- resetting to welcome.")
+                                session.state = WELCOME
+                                session.context = {}
+                        except Exception as e:
+                            print("⚠️ Failed to check idle timeout for", phone, "|", e)
                     else:
                         # First-time user: ensure we always send welcome
                         session.state = WELCOME
