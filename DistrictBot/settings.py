@@ -25,7 +25,7 @@ SUPPORT_PHONE = "255 000 000 000"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Logo image URL sent with welcome message
-LOGO_URL = "https://olodonyotech.s3.eu-north-1.amazonaws.com/chemba/chemba.png"
+LOGO_URL = "https://olodonyotech.s3.eu-north-1.amazonaws.com/chemba/chemba_logo.jpeg"
 
 
 # Quick-start development settings - unsuitable for production
