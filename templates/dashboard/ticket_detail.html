@@ -1,0 +1,40 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Tiketi {{ ticket.ticket_id }} – Dashboard{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Tiketi: {{ ticket.ticket_id }}</h2>
+    <p><strong>Aina:</strong> {{ ticket.get_ticket_type_display }}</p>
+    <p><strong>Simu:</strong> {{ ticket.phone_number }}</p>
+    <p><strong>Tarehe:</strong> {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+    <p><strong>Ujumbe wa mteja:</strong></p>
+    <p>{{ ticket.message }}</p>
+    {% if ticket.department %}<p><strong>Idara:</strong> {{ ticket.department }}</p>{% endif %}
+    <p><strong>Hali:</strong> <span class="badge badge-{{ ticket.status }}">{{ ticket.get_status_display }}</span></p>
+    {% if ticket.feedback %}
+    <p><strong>Jibu lililotumwa:</strong></p>
+    <p>{{ ticket.feedback }}</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Jibu mteja / Sasisha hali</h2>
+    <p>Jibu lako litatumwa kwa mteja kupitia WhatsApp na litakuwepo wakati mteja anafuatilia tiketi (chaguo 8).</p>
+    <form method="post" action="">
+        {% csrf_token %}
+        <p>
+            <label for="status">Hali:</label><br>
+            <select name="status" id="status" style="padding: 0.5rem; border-radius: 6px; margin-top: 0.25rem;">
+                <option value="received" {% if ticket.status == 'received' %}selected{% endif %}>Imepokelewa</option>
+                <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>Inakaguliwa</option>
+                <option value="answered" {% if ticket.status == 'answered' %}selected{% endif %}>Imegibiwa</option>
+            </select>
+        </p>
+        <p>
+            <label for="feedback">Jibu / Maoni (yatatumwa kwa WhatsApp):</label><br>
+            <textarea name="feedback" id="feedback" placeholder="Andika jibu la mteja hapa...">{{ ticket.feedback }}</textarea>
+        </p>
+        <button type="submit" class="btn btn-primary">Hifadhi na tuma kwa mteja</button>
+        <a href="{% url 'dashboard:home' %}" class="btn btn-secondary">Rudi kwenye orodha</a>
+    </form>
+</div>
+{% endblock %}

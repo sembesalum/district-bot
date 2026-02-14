@@ -38,6 +38,7 @@ class Ticket(models.Model):
     message = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_RECEIVED)
     department = models.CharField(max_length=32, blank=True)  # for complaints only
+    feedback = models.TextField(blank=True, help_text="Admin response sent to customer via WhatsApp")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard – Halmashauri Wilaya ya Chemba{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: #f5f5f5; color: #222; }
+        .header { background: #0d47a1; color: #fff; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
+        .header img { height: 48px; width: auto; }
+        .header h1 { margin: 0; font-size: 1.25rem; }
+        .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .tabs a { padding: 0.5rem 1rem; background: #fff; border-radius: 6px; text-decoration: none; color: #333; }
+        .tabs a.active { background: #0d47a1; color: #fff; }
+        table { width: 100%; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #e3f2fd; font-weight: 600; }
+        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; }
+        .badge-received { background: #fff3e0; color: #e65100; }
+        .badge-in_progress { background: #e3f2fd; color: #1565c0; }
+        .badge-answered { background: #e8f5e9; color: #2e7d32; }
+        .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; border: none; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #0d47a1; color: #fff; }
+        .btn-secondary { background: #e0e0e0; color: #333; }
+        .card { background: #fff; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .card h2 { margin-top: 0; }
+        textarea { width: 100%; min-height: 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; }
+        .messages { list-style: none; padding: 0; margin: 0 0 1rem 0; }
+        .messages li { padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; }
+        .messages .success { background: #e8f5e9; color: #2e7d32; }
+        .messages .warning { background: #fff3e0; color: #e65100; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <img src="{% static 'dashboard/chemba-logo.png' %}" alt="Chemba" onerror="this.style.display='none'">
+        <h1>Dashboard – Maswali na Malalamiko</h1>
+    </header>
+    <main class="container">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

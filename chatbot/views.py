@@ -125,7 +125,10 @@ def webhook(request):
                             lines = []
                             for t in tickets:
                                 status_sw = {"received": "Imepokelewa", "in_progress": "Inakaguliwa", "answered": "Imegibiwa"}.get(t.status, t.status)
-                                lines.append(f"• Kitambulisho: {t.ticket_id}\n  Ujumbe: {t.message}\n  Hali: {status_sw} | {t.created_at.strftime('%Y-%m-%d %H:%M')}")
+                                line = f"• Kitambulisho: {t.ticket_id}\n  Ujumbe: {t.message}\n  Hali: {status_sw} | {t.created_at.strftime('%Y-%m-%d %H:%M')}"
+                                if t.status == Ticket.STATUS_ANSWERED and (t.feedback or "").strip():
+                                    line += f"\n  Jibu: {(t.feedback or '').strip()}"
+                                lines.append(line)
                             reply_text = header + "\n".join(lines)
                         send_track_list_button = True
 

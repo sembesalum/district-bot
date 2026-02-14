@@ -1,0 +1,40 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Maswali na Malalamiko – Dashboard{% endblock %}
+{% block content %}
+<div class="tabs">
+    <a href="?tab=all" class="{% if tab == 'all' %}active{% endif %}">Zote</a>
+    <a href="?tab=maswali" class="{% if tab == 'maswali' %}active{% endif %}">Maswali</a>
+    <a href="?tab=malalamiko" class="{% if tab == 'malalamiko' %}active{% endif %}">Malalamiko</a>
+</div>
+
+{% if tickets %}
+<table>
+    <thead>
+        <tr>
+            <th>Kitambulisho</th>
+            <th>Aina</th>
+            <th>Simu</th>
+            <th>Ujumbe</th>
+            <th>Hali</th>
+            <th>Tarehe</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tickets %}
+        <tr>
+            <td><strong>{{ t.ticket_id }}</strong></td>
+            <td>{{ t.get_ticket_type_display }}</td>
+            <td>{{ t.phone_number }}</td>
+            <td>{{ t.message|truncatewords:12 }}</td>
+            <td><span class="badge badge-{{ t.status }}">{{ t.get_status_display }}</span></td>
+            <td>{{ t.created_at|date:"d/m/Y H:i" }}</td>
+            <td><a href="{% url 'dashboard:ticket_feedback' t.ticket_id %}" class="btn btn-primary">Jibu / Orodhesha</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Hakuna tiketi bado.</p>
+{% endif %}
+{% endblock %}
