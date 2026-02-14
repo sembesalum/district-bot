@@ -1,5 +1,112 @@
 {% extends "dashboard/base.html" %}
 {% block title %}Maswali na Malalamiko – Dashboard{% endblock %}
+{% block extra_css %}
+<style>
+    .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+    .tabs a {
+        padding: 0.6rem 1.25rem;
+        background: var(--surface);
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+    .tabs a:hover {
+        color: var(--primary);
+        border-color: var(--primary);
+        background: #f0f9ff;
+    }
+    .tabs a.active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+    }
+    .table-wrap {
+        background: var(--surface);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+    .table-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table-wrap th,
+    .table-wrap td {
+        padding: 0.875rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+    }
+    .table-wrap th {
+        background: var(--surface-elevated);
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+    }
+    .table-wrap tbody tr {
+        transition: background 0.15s;
+    }
+    .table-wrap tbody tr:hover {
+        background: #f8fafc;
+    }
+    .table-wrap tbody tr:last-child td { border-bottom: none; }
+    .ticket-id { font-weight: 700; color: var(--primary); font-family: ui-monospace, monospace; }
+    .ticket-msg { max-width: 220px; color: var(--text-muted); font-size: 0.9rem; }
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        background: var(--surface);
+        border-radius: var(--radius);
+        border: 1px dashed var(--border);
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+    .empty-state strong { color: var(--text); display: block; margin-bottom: 0.25rem; }
+    /* Responsive: card layout on small screens */
+    @media (max-width: 767px) {
+        .table-wrap thead { display: none; }
+        .table-wrap tr {
+            display: block;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .table-wrap tr:last-child { border-bottom: none; }
+        .table-wrap td {
+            display: block;
+            padding: 0.35rem 0;
+            border: none;
+        }
+        .table-wrap td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+        .table-wrap td:last-child {
+            padding-top: 0.75rem;
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .table-wrap td:last-child::before { display: none; }
+        .ticket-msg { max-width: none; }
+    }
+</style>
+{% endblock %}
 {% block content %}
 <div class="tabs">
     <a href="?tab=all" class="{% if tab == 'all' %}active{% endif %}">Zote</a>
@@ -8,33 +115,40 @@
 </div>
 
 {% if tickets %}
-<table>
-    <thead>
-        <tr>
-            <th>Kitambulisho</th>
-            <th>Aina</th>
-            <th>Simu</th>
-            <th>Ujumbe</th>
-            <th>Hali</th>
-            <th>Tarehe</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for t in tickets %}
-        <tr>
-            <td><strong>{{ t.ticket_id }}</strong></td>
-            <td>{{ t.get_ticket_type_display }}</td>
-            <td>{{ t.phone_number }}</td>
-            <td>{{ t.message|truncatewords:12 }}</td>
-            <td><span class="badge badge-{{ t.status }}">{{ t.get_status_display }}</span></td>
-            <td>{{ t.created_at|date:"d/m/Y H:i" }}</td>
-            <td><a href="{% url 'dashboard:ticket_feedback' t.ticket_id %}" class="btn btn-primary">Jibu / Orodhesha</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Kitambulisho</th>
+                <th>Aina</th>
+                <th>Simu</th>
+                <th>Ujumbe</th>
+                <th>Hali</th>
+                <th>Tarehe</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tickets %}
+            <tr>
+                <td data-label="Kitambulisho"><span class="ticket-id">{{ t.ticket_id }}</span></td>
+                <td data-label="Aina">{{ t.get_ticket_type_display }}</td>
+                <td data-label="Simu">{{ t.phone_number }}</td>
+                <td data-label="Ujumbe" class="ticket-msg">{{ t.message|truncatewords:12 }}</td>
+                <td data-label="Hali"><span class="badge badge-{{ t.status }}">{{ t.get_status_display }}</span></td>
+                <td data-label="Tarehe">{{ t.created_at|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <a href="{% url 'dashboard:ticket_feedback' t.ticket_id %}" class="btn btn-primary">Jibu / Orodhesha</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% else %}
-<p>Hakuna tiketi bado.</p>
+<div class="empty-state">
+    <strong>Hakuna tiketi bado</strong>
+    Tiketi za maswali na malalamiko zitaonekana hapa.
+</div>
 {% endif %}
 {% endblock %}
