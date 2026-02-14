@@ -127,7 +127,6 @@ def webhook(request):
                                 status_sw = {"received": "Imepokelewa", "in_progress": "Inakaguliwa", "answered": "Imegibiwa"}.get(t.status, t.status)
                                 lines.append(f"• Kitambulisho: {t.ticket_id}\n  Ujumbe: {t.message}\n  Hali: {status_sw} | {t.created_at.strftime('%Y-%m-%d %H:%M')}")
                             reply_text = header + "\n".join(lines)
-                        reply_text += "\n\nKurudi kwenye menyu kuu, bonyeza button hapa chini."
                         send_track_list_button = True
 
                     # Persist new complaint to DB (from submit complaint flow)
