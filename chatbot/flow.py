@@ -27,6 +27,7 @@ TRACK_TICKET = "track_ticket"
 SUBMIT_QUESTION = "submit_question"
 # Fuatilia: choose Malalamiko or Maswali then list
 TRACK_CHOICE = "track_choice"
+TRACK_LIST_SHOWN = "track_list_shown"  # after showing list, "1" or "Menyu kuu" -> main menu
 # Department info
 DEPT_INFO_CHOICE = "dept_info_choice"
 DEPT_INFO_SHOWN = "dept_info_shown"
@@ -796,36 +797,48 @@ def process_message(session_state, session_context, session_language, user_messa
         next_state = SUBMIT_CONFIRMED_OPTIONS
         received = _t(
             lang,
-            "Your message has been received.\n",
-            "Ujumbe wako umepokelewa, tutakurudia baada ya nusu saa na majibu sahihi.\n",
+            "Your message has been received. We will get back to you within 30 minutes.\n\n",
+            "Ujumbe wako umepokelewa, tutakurudia baada ya nusu saa na majibu sahihi.\n\n",
         )
-        track_prompt = _t(lang, f"Ticket ID: {ticket_id}\n\n1️⃣ Main menu\n2️⃣ Track my ticket", f"Kitambulisho: {ticket_id}\n\n1️⃣ Menyu kuu\n2️⃣ Fuatilia tiketi yangu")
-        reply = received + track_prompt
+        reply = (
+            received
+            + _t(lang, f"Tracking ID: {ticket_id}\nMessage: {msg}\n\n", f"Kitambulisho: {ticket_id}\nUjumbe: {msg}\n\n")
+        )
+        reply += _t(lang, "Tap a button below.", "Bonyeza button hapa chini.")
         return next_state, ctx, reply
 
     if state == SUBMIT_CONFIRMED_OPTIONS:
         lang = session_language or "sw"
-        main_menu_only = _t(lang, "1️⃣ Main menu\n2️⃣ Track my ticket", "1️⃣ Menyu kuu\n2️⃣ Fuatilia tiketi yangu")
-        main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
-        if msg == "1":
+        main_menu_only = _t(lang, "Tap: Menyu kuu or Fuatilia tiketi yangu", "Bonyeza: Menyu kuu au Fuatilia tiketi yangu")
+        if msg in ("1", "Menyu kuu"):
             next_state = MAIN_MENU
             reply = get_main_menu(lang, name=name)
-        elif msg == "2":
+        elif msg in ("2", "Fuatilia tiketi yangu", "Fuatilia tiketi"):
             next_state = TRACK_TICKET
             status_text = _ticket_status_message(ctx, lang)
-            reply = f"{status_text}\n\n{main_menu_opt}"
+            reply = status_text
         else:
             reply = main_menu_only
         return next_state, ctx, reply
 
     if state == TRACK_TICKET:
         lang = session_language or "sw"
-        main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
-        if msg == "1":
+        main_menu_opt = _t(lang, "Tap Menyu kuu to return.", "Bonyeza Menyu kuu kurudi.")
+        if msg in ("1", "Menyu kuu"):
             next_state = MAIN_MENU
             reply = get_main_menu(lang, name=name)
         else:
             reply = main_menu_opt
+        return next_state, ctx, reply
+
+    # ----- After showing track list: only "1" or "Menyu kuu" goes to main menu -----
+    if state == TRACK_LIST_SHOWN:
+        lang = session_language or "sw"
+        if msg in ("1", "Menyu kuu"):
+            next_state = MAIN_MENU
+            reply = get_main_menu(lang, name=name)
+        else:
+            reply = _t(lang, "Tap Menyu kuu to return to main menu.", "Bonyeza Menyu kuu kurudi kwenye menyu kuu.")
         return next_state, ctx, reply
 
     # ----- Submit swali (after FAQ "Wasilisha swali" button) -----
@@ -856,16 +869,17 @@ def process_message(session_state, session_context, session_language, user_messa
         lang = session_language or "sw"
         if msg == "Malalamiko":
             ctx["track_list_type"] = "complaint"
-            next_state = MAIN_MENU
+            next_state = TRACK_LIST_SHOWN
             reply = ""  # view will build list from DB
             return next_state, ctx, reply
         if msg == "Maswali":
             ctx["track_list_type"] = "question"
-            next_state = MAIN_MENU
+            next_state = TRACK_LIST_SHOWN
             reply = ""  # view will build list from DB
             return next_state, ctx, reply
-        # invalid: re-ask
-        reply = _t(lang, "Unataka Fuatilia?", "Unataka Fuatilia?")
+        # invalid: re-ask with same prompt
+        reply = "Chagua:\nUnataka Fuatilia?"
+        return next_state, ctx, reply
         return next_state, ctx, reply
 
     # ----- Department info -----

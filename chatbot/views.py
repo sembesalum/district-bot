@@ -14,6 +14,7 @@ from .flow import (
     SUBMIT_CONFIRMED_OPTIONS,
     SUBMIT_MESSAGE,
     TRACK_CHOICE,
+    TRACK_LIST_SHOWN,
 )
 
 @csrf_exempt
@@ -94,6 +95,7 @@ def webhook(request):
                         session.state = WELCOME
                         session.context = {}
 
+                    send_track_list_button = False
                     next_state, context_update, reply_text = process_message(
                         session.state,
                         session.context,
@@ -123,9 +125,10 @@ def webhook(request):
                             lines = []
                             for t in tickets:
                                 status_sw = {"received": "Imepokelewa", "in_progress": "Inakaguliwa", "answered": "Imegibiwa"}.get(t.status, t.status)
-                                lines.append(f"• {t.ticket_id}: {t.message[:50]}...\n  Hali: {status_sw} | {t.created_at.strftime('%Y-%m-%d %H:%M')}")
+                                lines.append(f"• Kitambulisho: {t.ticket_id}\n  Ujumbe: {t.message}\n  Hali: {status_sw} | {t.created_at.strftime('%Y-%m-%d %H:%M')}")
                             reply_text = header + "\n".join(lines)
-                        reply_text += "\n\n1️⃣ Menyu kuu"
+                        reply_text += "\n\nKurudi kwenye menyu kuu, bonyeza button hapa chini."
+                        send_track_list_button = True
 
                     # Persist new complaint to DB (from submit complaint flow)
                     if next_state == SUBMIT_CONFIRMED_OPTIONS and session.state == SUBMIT_MESSAGE and context_update.get("ticket_id"):
@@ -185,30 +188,42 @@ def webhook(request):
                         else:
                             print("⚠️ LOGO_URL not set; skipping welcome image for", phone)
 
-                    if is_welcome_reply and sent_welcome_as_caption:
-                        # We already delivered the full welcome as image caption; no extra SMS needed.
+                    # Option 8: send only one interactive (Chagua + Unataka Fuatilia? + 2 buttons), no separate text
+                    if next_state == TRACK_CHOICE and (reply_text or "").strip() == "Unataka Fuatilia?":
+                        send_interactive_buttons(
+                            phone,
+                            "Chagua:\nUnataka Fuatilia?",
+                            [{"id": "malalamiko", "title": "Malalamiko"}, {"id": "maswali", "title": "Maswali"}],
+                        )
+                    elif is_welcome_reply and sent_welcome_as_caption:
                         print("✅ Welcome delivered in single image+caption message (state=" + next_state + ")")
                     else:
-                        # Normal text response (or fallback if image failed / logo missing)
                         send_message(phone, reply_text)
                         if is_welcome_reply:
                             print("✅ Welcome SMS sent to", phone, "(state=" + next_state + ")")
                         else:
                             print("✅ Reply sent to", phone, "(state=" + next_state + ")")
 
+                    # After complaint confirmation (not after track list): send Menyu kuu / Fuatilia tiketi buttons
+                    if not send_track_list_button and (reply_text or "").strip().endswith("Bonyeza button hapa chini."):
+                        send_interactive_buttons(
+                            phone,
+                            "Chagua:",
+                            [{"id": "menyu_kuu", "title": "Menyu kuu"}, {"id": "fuatilia_tiketi", "title": "Fuatilia tiketi"}],
+                        )
                     # After FAQ (option 5): send "Wasilisha swali" button
-                    if (reply_text or "").strip().startswith("5️⃣ Maswali ya Haraka"):
+                    elif (reply_text or "").strip().startswith("5️⃣ Maswali ya Haraka"):
                         send_interactive_buttons(
                             phone,
                             "Je, hujapata swali ulilokuwa unataka kupata majibu yake? Bonyeza button hapa chini kuandika swali lako na utajibiwa ndani ya masaa mawili.",
                             [{"id": "wasilisha_swali", "title": "Wasilisha swali"}],
                         )
-                    # After "Unataka Fuatilia?" (option 8): send Malalamiko / Maswali buttons
-                    if next_state == TRACK_CHOICE and (reply_text or "").strip() == "Unataka Fuatilia?":
+                    # After track list: send "Menyu kuu" button (return to main menu)
+                    elif send_track_list_button:
                         send_interactive_buttons(
                             phone,
-                            "Chagua:",
-                            [{"id": "malalamiko", "title": "Malalamiko"}, {"id": "maswali", "title": "Maswali"}],
+                            "Kurudi kwenye menyu kuu:",
+                            [{"id": "menyu_kuu", "title": "Menyu kuu"}],
                         )
 
         return HttpResponse("EVENT_RECEIVED", status=200)
