@@ -44,6 +44,15 @@ def webhook(request):
                     phone = (message.get("from") or "").strip()
                     if not phone:
                         continue
+                    # WhatsApp Cloud API: value.contacts can contain { wa_id, profile: { name } }
+                    profile_name = ""
+                    for c in value.get("contacts") or []:
+                        if str(c.get("wa_id", "")) == str(phone):
+                            profile_name = (c.get("profile") or {}).get("name", "") or ""
+                            break
+                    if not profile_name and (value.get("contacts") or []):
+                        profile_name = (value["contacts"][0].get("profile") or {}).get("name", "") or ""
+
                     msg_type = message.get("type", "text")
                     if msg_type != "text":
                         body = "[Non-text message received]"
@@ -75,6 +84,7 @@ def webhook(request):
                         session.context,
                         session.language,
                         body,
+                        profile_name=profile_name or None,
                     )
                     session.state = next_state
                     session.context = context_update
@@ -87,11 +97,11 @@ def webhook(request):
 
                     # Guarantee a response (fallback welcome if reply ever empty)
                     if not (reply_text or "").strip():
-                        reply_text = get_welcome_message(session.language or "sw")
+                        reply_text = get_welcome_message(session.language or "sw", name=profile_name or None)
                     # Whenever we show the main-menu welcome (first time or after #):
                     # send logo + full welcome text together as ONE WhatsApp message
                     # by using the image caption, and only fall back to SMS if needed.
-                    welcome_text = get_welcome_message(session.language or "sw")
+                    welcome_text = get_welcome_message(session.language or "sw", name=profile_name or None)
                     is_welcome_reply = (reply_text or "").strip() == (welcome_text or "").strip()
                     sent_welcome_as_caption = False
                     if is_welcome_reply:

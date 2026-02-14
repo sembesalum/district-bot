@@ -250,15 +250,16 @@ def _validate_phone(text):
     return s.isdigit() and 9 <= len(s) <= 15
 
 
-def get_main_menu(lang="sw"):
+def get_main_menu(lang="sw", name=None):
     """
-    Main menu text.
-
+    Main menu text. Optional name for personalisation: "Habari, {name}" when provided.
     NOTE: For now we only use Kiswahili as the active language.
     """
+    name_clean = (name or "").strip()
+    greeting = "Habari, " + name_clean + "\n" if name_clean else "Habari,\n"
     return (
-        "Habari,\n"
-        "Karibu Wilaya ya Chemba!\n\n"
+        greeting
+        + "Karibu Wilaya ya Chemba!\n\n"
         "Nipo hapa kukuhudumia na kukupa taarifa zaidi kuhusu huduma, idara na fursa "
         "zinazopatikana katika Wilaya yetu ya Chemba.\n"
         "👉 Tafadhali chagua eneo unalotaka kupata taarifa:\n\n"
@@ -274,14 +275,15 @@ def get_main_menu(lang="sw"):
     )
 
 
-def get_welcome_message(lang="sw"):
+def get_welcome_message(lang="sw", name=None):
     """Welcome message (currently same as main menu, in Kiswahili)."""
-    return get_main_menu(lang)
+    return get_main_menu(lang, name=name)
 
 
-def process_message(session_state, session_context, session_language, user_message):
+def process_message(session_state, session_context, session_language, user_message, profile_name=None):
     """
     Process one user message. No DB for applications/complaints; session only.
+    profile_name: optional WhatsApp display name for personalised welcome/menu.
     Returns: (next_state, context_update_dict, reply_text)
     """
     state = session_state or WELCOME
@@ -289,18 +291,19 @@ def process_message(session_state, session_context, session_language, user_messa
     msg = (user_message or "").strip()
     reply = ""
     next_state = state
+    name = (profile_name or "").strip() or None
 
     # ----- # = reset session (default key) -----
     if msg == "#":
         next_state = MAIN_MENU
         ctx = {}
-        reply = get_welcome_message(session_language or "sw")
+        reply = get_welcome_message(session_language or "sw", name=name)
         return next_state, ctx, reply
 
     # ----- Welcome / first message -> main menu (default Kiswahili) -----
     if state == WELCOME:
         next_state = MAIN_MENU
-        reply = get_welcome_message("sw")
+        reply = get_welcome_message("sw", name=name)
         return next_state, ctx, reply
 
     # ----- Language choice (option 4 from main menu) -----
@@ -311,11 +314,11 @@ def process_message(session_state, session_context, session_language, user_messa
         if msg == "1":
             ctx["language"] = "sw"
             next_state = MAIN_MENU
-            reply = get_welcome_message("sw")
+            reply = get_welcome_message("sw", name=name)
         elif msg == "2":
             ctx["language"] = "en"
             next_state = MAIN_MENU
-            reply = get_welcome_message("en")
+            reply = get_welcome_message("en", name=name)
         else:
             reply = lang_prompt
         return next_state, ctx, reply
@@ -482,7 +485,7 @@ def process_message(session_state, session_context, session_language, user_messa
         # 0 = back to main menu
         if msg == "0":
             next_state = MAIN_MENU
-            reply = get_main_menu(lang)
+            reply = get_main_menu(lang, name=name)
             return next_state, ctx, reply
 
         # In detail mode, 3 = back to Halmashauri sub-menu list
@@ -745,13 +748,13 @@ def process_message(session_state, session_context, session_language, user_messa
             ctx.pop("check_dept", None)
             ctx.pop("check_id_type", None)
             ctx.pop("last_check_identifier", None)
-            reply = contact_support + get_main_menu(lang)
+            reply = contact_support + get_main_menu(lang, name=name)
         elif msg == "3":
             next_state = MAIN_MENU
             ctx.pop("check_dept", None)
             ctx.pop("check_id_type", None)
             ctx.pop("last_check_identifier", None)
-            reply = get_main_menu(lang)
+            reply = get_main_menu(lang, name=name)
         else:
             reply = try_again
         return next_state, ctx, reply
@@ -794,7 +797,7 @@ def process_message(session_state, session_context, session_language, user_messa
         main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
         if msg == "1":
             next_state = MAIN_MENU
-            reply = get_main_menu(lang)
+            reply = get_main_menu(lang, name=name)
         elif msg == "2":
             next_state = TRACK_TICKET
             status_text = _ticket_status_message(ctx, lang)
@@ -808,7 +811,7 @@ def process_message(session_state, session_context, session_language, user_messa
         main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
         if msg == "1":
             next_state = MAIN_MENU
-            reply = get_main_menu(lang)
+            reply = get_main_menu(lang, name=name)
         else:
             reply = main_menu_opt
         return next_state, ctx, reply
@@ -836,12 +839,12 @@ def process_message(session_state, session_context, session_language, user_messa
         main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
         if msg == "1":
             next_state = MAIN_MENU
-            reply = get_main_menu(lang)
+            reply = get_main_menu(lang, name=name)
         else:
             reply = main_menu_opt
         return next_state, ctx, reply
 
     # Fallback: reset to main menu
     next_state = MAIN_MENU
-    reply = get_main_menu(session_language or "sw")
+    reply = get_main_menu(session_language or "sw", name=name)
     return next_state, ctx, reply
