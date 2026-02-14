@@ -285,6 +285,19 @@ def get_welcome_message(lang="sw", name=None):
     return get_main_menu(lang, name=name)
 
 
+# Greetings: if user sends any of these (exact match, case-insensitive), clear session and send welcome
+GREETING_WORDS = frozenset({
+    "hi", "hello", "hellow", "helo", "hey", "boss", "hei",
+    "habari", "mambo", "niaje", "vipi", "vp", "kwema", "salama", "oi", "bablai",
+    "za sahizi", "za asubuhi",
+})
+
+# Complaint keywords: if user sends any of these, go directly to option 7 (Wasilisha Malalamiko)
+COMPLAINT_KEYWORDS = frozenset({
+    "kero", "malalamiko", "changamoto",
+})
+
+
 def process_message(session_state, session_context, session_language, user_message, profile_name=None):
     """
     Process one user message. No DB for applications/complaints; session only.
@@ -303,6 +316,28 @@ def process_message(session_state, session_context, session_language, user_messa
         next_state = MAIN_MENU
         ctx = {}
         reply = get_welcome_message(session_language or "sw", name=name)
+        return next_state, ctx, reply
+
+    # ----- Greeting words: clear session and send welcome (same as #) -----
+    msg_lower = msg.lower()
+    if msg_lower in GREETING_WORDS:
+        next_state = MAIN_MENU
+        ctx = {}
+        reply = get_welcome_message(session_language or "sw", name=name)
+        return next_state, ctx, reply
+
+    # ----- Complaint keywords: go directly to option 7 (Wasilisha Malalamiko) -----
+    if msg_lower in COMPLAINT_KEYWORDS:
+        next_state = SUBMIT_DEPT
+        ctx.pop("submit_dept", None)
+        reply = (
+            "Chagua idara inayohusika na malalamiko yako:\n"
+            "1️⃣ Ardhi\n"
+            "2️⃣ Umeme\n"
+            "3️⃣ Afya\n"
+            "4️⃣ Maji\n"
+            "5️⃣ Biashara na Soko"
+        )
         return next_state, ctx, reply
 
     # ----- Welcome / first message -> main menu (default Kiswahili) -----
