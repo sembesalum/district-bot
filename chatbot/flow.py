@@ -23,6 +23,10 @@ SUBMIT_DEPT = "submit_dept"
 SUBMIT_MESSAGE = "submit_message"
 SUBMIT_CONFIRMED_OPTIONS = "submit_confirmed_options"
 TRACK_TICKET = "track_ticket"
+# Submit swali (after FAQ button)
+SUBMIT_QUESTION = "submit_question"
+# Fuatilia: choose Malalamiko or Maswali then list
+TRACK_CHOICE = "track_choice"
 # Department info
 DEPT_INFO_CHOICE = "dept_info_choice"
 DEPT_INFO_SHOWN = "dept_info_shown"
@@ -270,7 +274,7 @@ def get_main_menu(lang="sw", name=None):
         "5️⃣ Maswali ya Haraka\n"
         "6️⃣ Angalia Hali ya Maombi\n"
         "7️⃣ Wasilisha Malalamiko\n"
-        "8️⃣ Fuatilia Malalamiko Yangu\n\n"
+        "8️⃣ Fuatilia Malalamiko/Maswali Yangu\n\n"
         "🔁 Jibu # kuanza upya wakati wowote."
     )
 
@@ -439,7 +443,6 @@ def process_message(session_state, session_context, session_language, user_messa
                 "Fursa za uwekezaji zipo katika maeneo yaliyotengwa Mji wa Chemba, Paranga na Kambi ya Nyasa, yenye miundombinu ya umeme, barabara na mawasiliano.\n\n"
                 "12. Sekta ya kilimo na mifugo ina mchango gani kwa Wilaya?\n"
                 "Takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara. Huduma za ugani, mifugo na chanjo zinatolewa ili kuongeza uzalishaji na kipato cha wananchi.\n\n"
-                "Kwa maswali zaidi, tafadhali wasiliana na ofisi ya wilaya kwa msaada zaidi kupitia: 255 000 000 000.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
             next_state = MAIN_MENU
@@ -466,13 +469,22 @@ def process_message(session_state, session_context, session_language, user_messa
                 "4️⃣ Maji\n"
                 "5️⃣ Biashara na Soko"
             )
+        elif msg == "Wasilisha swali":
+            # Button from FAQ (option 5): go to submit-question flow
+            next_state = SUBMIT_QUESTION
+            reply = _t(
+                session_language or "sw",
+                "Please type your question below. You will receive an answer within 2 hours.",
+                "Andika swali lako hapa chini. Utapokea majibu ndani ya masaa mawili.",
+            )
         elif msg == "8":
-            # Fuatilia Malalamiko Yangu – same tracking logic as ticket tracking
-            next_state = TRACK_TICKET
-            lang = session_language or "sw"
-            main_menu_opt = _t(lang, "1️⃣ Main menu", "1️⃣ Menyu kuu")
-            status_text = _ticket_status_message(ctx, lang)
-            reply = f"{status_text}\n\n{main_menu_opt}"
+            # Fuatilia Malalamiko/Maswali Yangu – show choice (view sends 2 buttons)
+            next_state = TRACK_CHOICE
+            reply = _t(
+                session_language or "sw",
+                "What would you like to track?",
+                "Unataka Fuatilia?",
+            )
         else:
             reply = _invalid_option("sw")
         return next_state, ctx, reply
@@ -814,6 +826,46 @@ def process_message(session_state, session_context, session_language, user_messa
             reply = get_main_menu(lang, name=name)
         else:
             reply = main_menu_opt
+        return next_state, ctx, reply
+
+    # ----- Submit swali (after FAQ "Wasilisha swali" button) -----
+    if state == SUBMIT_QUESTION:
+        lang = session_language or "sw"
+        if not msg or len(msg.strip()) < 2:
+            reply = _t(
+                lang,
+                "Please type your question (at least a few characters).",
+                "Tafadhali andika swali lako (angalau herufi chache).",
+            )
+            return next_state, ctx, reply
+        ticket_id = _generate_ticket_id()
+        ctx["ticket_id"] = ticket_id
+        ctx["ticket_message"] = msg.strip()
+        ctx["ticket_type"] = "question"
+        ctx["ticket_timestamp"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
+        next_state = MAIN_MENU
+        reply = _t(
+            lang,
+            "Your question has been received. You will get an answer within 2 hours.\n\n1️⃣ Main menu",
+            "Umewasilisha swali lako. Utapokea majibu ndani ya masaa mawili.\n\n1️⃣ Menyu kuu",
+        )
+        return next_state, ctx, reply
+
+    # ----- Fuatilia: Malalamiko or Maswali (view sends list from DB) -----
+    if state == TRACK_CHOICE:
+        lang = session_language or "sw"
+        if msg == "Malalamiko":
+            ctx["track_list_type"] = "complaint"
+            next_state = MAIN_MENU
+            reply = ""  # view will build list from DB
+            return next_state, ctx, reply
+        if msg == "Maswali":
+            ctx["track_list_type"] = "question"
+            next_state = MAIN_MENU
+            reply = ""  # view will build list from DB
+            return next_state, ctx, reply
+        # invalid: re-ask
+        reply = _t(lang, "Unataka Fuatilia?", "Unataka Fuatilia?")
         return next_state, ctx, reply
 
     # ----- Department info -----

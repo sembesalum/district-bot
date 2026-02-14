@@ -96,3 +96,49 @@ def send_image_with_caption(to, image_path, caption):
     except Exception as e:
         print("❌ Logo image send failed to", to, "| exception:", e)
         return {"error": str(e)}
+
+
+def send_interactive_buttons(to, body_text, buttons):
+    """
+    Send WhatsApp interactive message with reply buttons (max 3, title max 20 chars).
+    buttons: list of dicts [ {"id": "btn_1", "title": "Label"}, ... ]
+    Returns API response dict or {"error": "..."}.
+    """
+    to = _normalize_phone(to)
+    if not to:
+        print("📤 Interactive skipped: no valid phone number")
+        return {"error": "no_phone"}
+    if not (body_text or "").strip():
+        return {"error": "empty_body"}
+    if not buttons or len(buttons) > 3:
+        return {"error": "buttons_count"}
+    action_buttons = []
+    for b in buttons:
+        bid = (b.get("id") or b.get("title") or "").strip()[:256]
+        title = (b.get("title") or b.get("id") or "").strip()[:20]
+        if not title:
+            continue
+        action_buttons.append({"type": "reply", "reply": {"id": bid or title, "title": title}})
+    if not action_buttons:
+        return {"error": "no_buttons"}
+    url = f"https://graph.facebook.com/v21.0/{PHONE_ID}/messages"
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "Content-Type": "application/json"}
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to,
+        "type": "interactive",
+        "interactive": {
+            "type": "button",
+            "body": {"text": (body_text or "").strip()[:1024]},
+            "action": {"buttons": action_buttons},
+        },
+    }
+    try:
+        r = requests.post(url, headers=headers, json=payload, timeout=15)
+        data = r.json() if r.text else {}
+        if r.status_code != 200:
+            print("❌ Interactive buttons failed to", to, "|", data.get("error"))
+        return data
+    except Exception as e:
+        print("❌ Interactive buttons exception to", to, "|", e)
+        return {"error": str(e)}

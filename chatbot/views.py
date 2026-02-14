@@ -1,12 +1,20 @@
 # chatbot/views.py
 import json
+import re
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
-from .utils import send_message, send_image_with_caption
-from .models import ChatSession
-from .flow import process_message, WELCOME, get_welcome_message
+from .utils import send_message, send_image_with_caption, send_interactive_buttons
+from .models import ChatSession, Ticket
+from .flow import (
+    process_message,
+    WELCOME,
+    get_welcome_message,
+    SUBMIT_CONFIRMED_OPTIONS,
+    SUBMIT_MESSAGE,
+    TRACK_CHOICE,
+)
 
 @csrf_exempt
 def webhook(request):
@@ -54,7 +62,14 @@ def webhook(request):
                         profile_name = (value["contacts"][0].get("profile") or {}).get("name", "") or ""
 
                     msg_type = message.get("type", "text")
-                    if msg_type != "text":
+                    if msg_type == "interactive":
+                        interactive = message.get("interactive") or {}
+                        if interactive.get("type") == "button_reply":
+                            br = interactive.get("button_reply") or {}
+                            body = (br.get("title") or br.get("id") or "").strip()
+                        else:
+                            body = "[Interactive message]"
+                    elif msg_type != "text":
                         body = "[Non-text message received]"
                     else:
                         body = (message.get("text", {}) or {}).get("body", "")
@@ -86,6 +101,59 @@ def webhook(request):
                         body,
                         profile_name=profile_name or None,
                     )
+
+                    # Build track list from DB when user chose Malalamiko or Maswali
+                    if context_update.get("track_list_type"):
+                        list_type = context_update.pop("track_list_type")
+                        phone_digits = re.sub(r"\D", "", str(phone))
+                        tickets = list(
+                            Ticket.objects.filter(phone_number=phone_digits, ticket_type=list_type).order_by("-created_at")[:20]
+                        )
+                        if list_type == "complaint":
+                            header = "Malalamiko yako:\n\n"
+                        else:
+                            header = "Maswali yako:\n\n"
+                        if not tickets:
+                            reply_text = header + (
+                                "Hakuna malalamiko yaliyowasilishwa."
+                                if list_type == "complaint"
+                                else "Hakuna maswali yaliyowasilishwa."
+                            )
+                        else:
+                            lines = []
+                            for t in tickets:
+                                status_sw = {"received": "Imepokelewa", "in_progress": "Inakaguliwa", "answered": "Imegibiwa"}.get(t.status, t.status)
+                                lines.append(f"• {t.ticket_id}: {t.message[:50]}...\n  Hali: {status_sw} | {t.created_at.strftime('%Y-%m-%d %H:%M')}")
+                            reply_text = header + "\n".join(lines)
+                        reply_text += "\n\n1️⃣ Menyu kuu"
+
+                    # Persist new complaint to DB (from submit complaint flow)
+                    if next_state == SUBMIT_CONFIRMED_OPTIONS and session.state == SUBMIT_MESSAGE and context_update.get("ticket_id"):
+                        phone_digits = re.sub(r"\D", "", str(phone))
+                        Ticket.objects.get_or_create(
+                            ticket_id=context_update["ticket_id"],
+                            defaults={
+                                "phone_number": phone_digits,
+                                "ticket_type": Ticket.TYPE_COMPLAINT,
+                                "message": context_update.get("ticket_message", ""),
+                                "status": Ticket.STATUS_RECEIVED,
+                                "department": context_update.get("ticket_dept", ""),
+                            },
+                        )
+
+                    # Persist new question to DB (from FAQ "Wasilisha swali" flow)
+                    if context_update.get("ticket_type") == "question" and context_update.get("ticket_id"):
+                        phone_digits = re.sub(r"\D", "", str(phone))
+                        Ticket.objects.get_or_create(
+                            ticket_id=context_update["ticket_id"],
+                            defaults={
+                                "phone_number": phone_digits,
+                                "ticket_type": Ticket.TYPE_QUESTION,
+                                "message": context_update.get("ticket_message", ""),
+                                "status": Ticket.STATUS_RECEIVED,
+                            },
+                        )
+
                     session.state = next_state
                     session.context = context_update
                     if "language" in context_update:
@@ -127,6 +195,21 @@ def webhook(request):
                             print("✅ Welcome SMS sent to", phone, "(state=" + next_state + ")")
                         else:
                             print("✅ Reply sent to", phone, "(state=" + next_state + ")")
+
+                    # After FAQ (option 5): send "Wasilisha swali" button
+                    if (reply_text or "").strip().startswith("5️⃣ Maswali ya Haraka"):
+                        send_interactive_buttons(
+                            phone,
+                            "Je, hujapata swali ulilokuwa unataka kupata majibu yake? Bonyeza button hapa chini kuandika swali lako na utajibiwa ndani ya masaa mawili.",
+                            [{"id": "wasilisha_swali", "title": "Wasilisha swali"}],
+                        )
+                    # After "Unataka Fuatilia?" (option 8): send Malalamiko / Maswali buttons
+                    if next_state == TRACK_CHOICE and (reply_text or "").strip() == "Unataka Fuatilia?":
+                        send_interactive_buttons(
+                            phone,
+                            "Chagua:",
+                            [{"id": "malalamiko", "title": "Malalamiko"}, {"id": "maswali", "title": "Maswali"}],
+                        )
 
         return HttpResponse("EVENT_RECEIVED", status=200)
     except Exception as e:
