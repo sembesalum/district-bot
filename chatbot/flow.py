@@ -878,7 +878,7 @@ def process_message(session_state, session_context, session_language, user_messa
             reply = ""  # view will build list from DB
             return next_state, ctx, reply
         # invalid: re-ask with same prompt
-        reply = "Chagua:\nUnataka Fuatilia?"
+        reply = "Unataka Fuatilia?"
         return next_state, ctx, reply
         return next_state, ctx, reply
 

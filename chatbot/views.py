@@ -192,7 +192,7 @@ def webhook(request):
                     if next_state == TRACK_CHOICE and (reply_text or "").strip() == "Unataka Fuatilia?":
                         send_interactive_buttons(
                             phone,
-                            "Chagua:\nUnataka Fuatilia?",
+                            "Unataka Fuatilia?",
                             [{"id": "malalamiko", "title": "Malalamiko"}, {"id": "maswali", "title": "Maswali"}],
                         )
                     elif is_welcome_reply and sent_welcome_as_caption:
