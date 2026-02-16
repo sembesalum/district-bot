@@ -906,7 +906,9 @@ def process_message(session_state, session_context, session_language, user_messa
         ctx["ticket_message"] = msg.strip()
         ctx["ticket_type"] = "question"
         ctx["ticket_timestamp"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
-        next_state = MAIN_MENU
+        # After submitting a question, treat \"1\" / \"Menyu kuu\" like TRACK_TICKET:
+        # pressing 1 should show the full main menu, not option 1.
+        next_state = TRACK_TICKET
         reply = _t(
             lang,
             f"Your question has been received. Tracking ID: {ticket_id}\nYou will get an answer within 24 hours.\n\n1️⃣ Main menu",
