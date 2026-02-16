@@ -297,7 +297,10 @@ COMPLAINT_KEYWORDS = frozenset({
     "kero", "malalamiko", "changamoto",
 })
 
-# Question keywords: if user sends any of these, go to Maswali ya Haraka (option 5) – submit question flow
+# Question keywords: if user sends any of these (in most states),
+# go to Maswali ya Haraka – submit question flow.
+# NOTE: We *skip* this shortcut when the user is in TRACK_CHOICE,
+# so that typing "swali"/"maswali" there is treated as "Maswali" for tracking.
 QUESTION_KEYWORDS = frozenset({
     "swali", "maswali",
 })
@@ -346,7 +349,8 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     # ----- Question keywords (e.g. "swali"): go to Maswali ya Haraka – submit question flow -----
-    if msg_lower in QUESTION_KEYWORDS:
+    # Skip this when in TRACK_CHOICE so that "swali"/"maswali" is used for tracking instead.
+    if msg_lower in QUESTION_KEYWORDS and state != TRACK_CHOICE:
         next_state = SUBMIT_QUESTION
         reply = _t(
             session_language or "sw",
@@ -919,12 +923,14 @@ def process_message(session_state, session_context, session_language, user_messa
     # ----- Fuatilia: Malalamiko or Maswali (view sends list from DB) -----
     if state == TRACK_CHOICE:
         lang = session_language or "sw"
-        if msg == "Malalamiko":
+        msg_norm = (msg or "").strip()
+        msg_lower = msg_norm.lower()
+        if msg_lower == "malalamiko":
             ctx["track_list_type"] = "complaint"
             next_state = TRACK_LIST_SHOWN
             reply = ""  # view will build list from DB
             return next_state, ctx, reply
-        if msg == "Maswali":
+        if msg_lower in ("maswali", "swali"):
             ctx["track_list_type"] = "question"
             next_state = TRACK_LIST_SHOWN
             reply = ""  # view will build list from DB
