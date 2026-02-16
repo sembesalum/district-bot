@@ -217,7 +217,7 @@ def webhook(request):
                     elif (reply_text or "").strip().startswith("5️⃣ Maswali ya Haraka"):
                         send_interactive_buttons(
                             phone,
-                            "Je, hujapata swali ulilokuwa unataka kupata majibu yake? Bonyeza button hapa chini kuandika swali lako na utajibiwa ndani ya masaa mawili.",
+                            "Je, hujapata swali ulilokuwa unataka kupata majibu yake? Bonyeza button hapa chini kuandika swali lako na utajibiwa ndani ya masaa 24.",
                             [{"id": "wasilisha_swali", "title": "Wasilisha swali"}],
                         )
                     # After track list: send "Menyu kuu" button (return to main menu)

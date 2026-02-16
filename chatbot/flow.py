@@ -181,7 +181,7 @@ def _ticket_status_message(ctx, lang="sw"):
     """
     Build a status message for the last submitted complaint/ticket based on
     the stored context (ticket_id, ticket_message, ticket_timestamp).
-    Includes a 30-minute SLA style explanation and support contact if available.
+    Includes a 24-hour SLA and support contact if available.
     """
     ticket_id = ctx.get("ticket_id")
     if not ticket_id:
@@ -206,30 +206,30 @@ def _ticket_status_message(ctx, lang="sw"):
         if ticket_timestamp:
             submitted = datetime.strptime(ticket_timestamp, "%Y-%m-%d %H:%M")
             now = datetime.utcnow()
-            diff_minutes = max(0, (now - submitted).total_seconds() / 60.0)
-            answer_time = submitted + timedelta(minutes=30)
-            answer_time_str = answer_time.strftime("%H:%M")
-            if diff_minutes < 30:
-                # Under 30 minutes – remind expected answer window
+            diff_hours = max(0, (now - submitted).total_seconds() / 3600.0)
+            answer_time = submitted + timedelta(hours=24)
+            answer_time_str = answer_time.strftime("%Y-%m-%d %H:%M")
+            if diff_hours < 24:
+                # Under 24 hours – remind expected answer window
                 extra = _t(
                     lang,
-                    f"\n\nYour complaint was received at {ticket_timestamp}.\nYou will receive an answer by {answer_time_str} (within 30 minutes).",
-                    f"\n\nMalalamiko yako yalipokelewa saa {ticket_timestamp}.\nUtapokea majibu kabla ya saa {answer_time_str} (ndani ya dakika 30).",
+                    f"\n\nYour complaint was received at {ticket_timestamp}.\nYou will receive an answer within 24 hours (by {answer_time_str}).",
+                    f"\n\nMalalamiko yako yalipokelewa saa {ticket_timestamp}.\nUtapokea majibu ndani ya masaa 24 (kabla ya {answer_time_str}).",
                 )
             else:
-                # More than 30 minutes – advise to contact support with phone number if configured
+                # More than 24 hours – advise to contact support
                 support_phone = getattr(settings, "SUPPORT_PHONE", None)
                 if support_phone:
                     extra = _t(
                         lang,
-                        f"\n\nIt has been more than 30 minutes since you submitted your complaint.\nPlease contact the district office for further assistance at: {support_phone}.",
-                        f"\n\nImepita zaidi ya dakika 30 tangu ulipowasilisha malalamiko yako.\nTafadhali wasiliana na ofisi ya wilaya kwa msaada zaidi kupitia: {support_phone}.",
+                        f"\n\nIt has been more than 24 hours since you submitted your complaint.\nPlease contact the district office for further assistance at: {support_phone}.",
+                        f"\n\nImepita zaidi ya masaa 24 tangu ulipowasilisha malalamiko yako.\nTafadhali wasiliana na ofisi ya wilaya kwa msaada zaidi kupitia: {support_phone}.",
                     )
                 else:
                     extra = _t(
                         lang,
-                        "\n\nIt has been more than 30 minutes since you submitted your complaint.\nPlease contact the district office for further assistance.",
-                        "\n\nImepita zaidi ya dakika 30 tangu ulipowasilisha malalamiko yako.\nTafadhali wasiliana na ofisi ya wilaya kwa msaada zaidi.",
+                        "\n\nIt has been more than 24 hours since you submitted your complaint.\nPlease contact the district office for further assistance.",
+                        "\n\nImepita zaidi ya masaa 24 tangu ulipowasilisha malalamiko yako.\nTafadhali wasiliana na ofisi ya wilaya kwa msaada zaidi.",
                     )
     except Exception:
         # If parsing or timing fails, just return the base info without timing text.
@@ -297,6 +297,11 @@ COMPLAINT_KEYWORDS = frozenset({
     "kero", "malalamiko", "changamoto",
 })
 
+# Question keywords: if user sends any of these, go to Maswali ya Haraka (option 5) – submit question flow
+QUESTION_KEYWORDS = frozenset({
+    "swali", "maswali",
+})
+
 
 def process_message(session_state, session_context, session_language, user_message, profile_name=None):
     """
@@ -337,6 +342,16 @@ def process_message(session_state, session_context, session_language, user_messa
             "3️⃣ Afya\n"
             "4️⃣ Maji\n"
             "5️⃣ Biashara na Soko"
+        )
+        return next_state, ctx, reply
+
+    # ----- Question keywords (e.g. "swali"): go to Maswali ya Haraka – submit question flow -----
+    if msg_lower in QUESTION_KEYWORDS:
+        next_state = SUBMIT_QUESTION
+        reply = _t(
+            session_language or "sw",
+            "Please type your question below. You will receive an answer within 24 hours.",
+            "Andika swali lako hapa chini. Utapokea majibu ndani ya masaa 24.",
         )
         return next_state, ctx, reply
 
@@ -510,8 +525,8 @@ def process_message(session_state, session_context, session_language, user_messa
             next_state = SUBMIT_QUESTION
             reply = _t(
                 session_language or "sw",
-                "Please type your question below. You will receive an answer within 2 hours.",
-                "Andika swali lako hapa chini. Utapokea majibu ndani ya masaa mawili.",
+                "Please type your question below. You will receive an answer within 24 hours.",
+                "Andika swali lako hapa chini. Utapokea majibu ndani ya masaa 24.",
             )
         elif msg == "8":
             # Fuatilia Malalamiko/Maswali Yangu – show choice (view sends 2 buttons)
@@ -832,8 +847,8 @@ def process_message(session_state, session_context, session_language, user_messa
         next_state = SUBMIT_CONFIRMED_OPTIONS
         received = _t(
             lang,
-            "Your message has been received. We will get back to you within 30 minutes.\n\n",
-            "Ujumbe wako umepokelewa, tutakurudia baada ya nusu saa na majibu sahihi.\n\n",
+            "Your message has been received. We will get back to you within 24 hours.\n\n",
+            "Ujumbe wako umepokelewa. Utapokea majibu ndani ya masaa 24.\n\n",
         )
         reply = (
             received
@@ -894,8 +909,8 @@ def process_message(session_state, session_context, session_language, user_messa
         next_state = MAIN_MENU
         reply = _t(
             lang,
-            "Your question has been received. You will get an answer within 2 hours.\n\n1️⃣ Main menu",
-            "Umewasilisha swali lako. Utapokea majibu ndani ya masaa mawili.\n\n1️⃣ Menyu kuu",
+            f"Your question has been received. Tracking ID: {ticket_id}\nYou will get an answer within 24 hours.\n\n1️⃣ Main menu",
+            f"Umewasilisha swali lako.\nKitambulisho chako: {ticket_id}\nUtapokea majibu ndani ya masaa 24. Unaweza kufuatilia kwa chaguo 8 (Fuatilia Malalamiko/Maswali Yangu).\n\n1️⃣ Menyu kuu",
         )
         return next_state, ctx, reply
 
@@ -914,7 +929,6 @@ def process_message(session_state, session_context, session_language, user_messa
             return next_state, ctx, reply
         # invalid: re-ask with same prompt
         reply = "Unataka Fuatilia?"
-        return next_state, ctx, reply
         return next_state, ctx, reply
 
     # ----- Department info -----
