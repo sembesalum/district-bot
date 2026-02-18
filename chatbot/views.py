@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
-from .utils import send_message, send_image_with_caption, send_interactive_buttons
+from .utils import send_message, send_image_with_caption, send_interactive_buttons, send_typing_indicator
 from .models import ChatSession, Ticket
 from .flow import (
     process_message,
@@ -74,6 +74,9 @@ def webhook(request):
                         body = "[Non-text message received]"
                     else:
                         body = (message.get("text", {}) or {}).get("body", "")
+
+                    # Show "someone is typing" while we prepare the reply
+                    send_typing_indicator(phone)
 
                     session, created = ChatSession.objects.get_or_create(
                         phone_number=phone,

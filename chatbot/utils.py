@@ -18,6 +18,35 @@ def _normalize_phone(to):
     return digits if digits else None
 
 
+def send_typing_indicator(to):
+    """
+    Send WhatsApp typing indicator so the user sees "someone is typing".
+    Lasts until we send a message or ~25 seconds. Call this before processing
+    so the user gets feedback while waiting for the reply.
+    Returns True if request succeeded (or we don't care about failures).
+    """
+    to = _normalize_phone(to)
+    if not to:
+        return False
+    url = f"https://graph.facebook.com/v21.0/{PHONE_ID}/messages"
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "Content-Type": "application/json"}
+    payload = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": to,
+        "type": "action",
+        "action": "typing",
+    }
+    try:
+        r = requests.post(url, headers=headers, json=payload, timeout=5)
+        if r.status_code == 200:
+            return True
+        # Don't log as error; typing is best-effort
+        return False
+    except Exception:
+        return False
+
+
 def send_message(to, text):
     """Send simple WhatsApp text message. Returns (success: bool, response dict)."""
     to = _normalize_phone(to)
