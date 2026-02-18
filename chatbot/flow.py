@@ -413,7 +413,10 @@ def process_message(session_state, session_context, session_language, user_messa
                 "  - Ushirikiano na Kazi kwa Pamoja: Kukuza ushirikiano miongoni mwa watumishi, wadau, na washirika wa maendeleo.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
-            header, sep, body = base.split("\n\n", 1) if "\n\n" in base else (base, "", "")
+            if "\n\n" in base:
+                header, body = base.split("\n\n", 1)
+            else:
+                header, body = base, ""
             reply = rewrite_info_answer(header, body, lang=session_language or "sw")
             next_state = MAIN_MENU
         elif msg == "2":
@@ -444,7 +447,10 @@ def process_message(session_state, session_context, session_language, user_messa
                 "kulinda mifumo hii muhimu ya ikolojia kwa manufaa ya vizazi vya sasa na vijavyo.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
-            header, sep, body = base.split("\n\n", 1) if "\n\n" in base else (base, "", "")
+            if "\n\n" in base:
+                header, body = base.split("\n\n", 1)
+            else:
+                header, body = base, ""
             reply = rewrite_info_answer(header, body, lang=session_language or "sw")
             next_state = MAIN_MENU
         elif msg == "3":
@@ -475,7 +481,10 @@ def process_message(session_state, session_context, session_language, user_messa
                 "Maeneo haya yana miundombinu wezeshi kama umeme, barabara na mawasiliano yanayorahisisha uwekezaji na shughuli za kiuchumi.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
-            header, sep, body = base.split("\n\n", 1) if "\n\n" in base else (base, "", "")
+            if "\n\n" in base:
+                header, body = base.split("\n\n", 1)
+            else:
+                header, body = base, ""
             reply = rewrite_info_answer(header, body, lang=session_language or "sw")
             next_state = MAIN_MENU
         elif msg == "5":
@@ -508,7 +517,10 @@ def process_message(session_state, session_context, session_language, user_messa
                 "Takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara. Huduma za ugani, mifugo na chanjo zinatolewa ili kuongeza uzalishaji na kipato cha wananchi.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
-            header, sep, body = base.split("\n\n", 1) if "\n\n" in base else (base, "", "")
+            if "\n\n" in base:
+                header, body = base.split("\n\n", 1)
+            else:
+                header, body = base, ""
             # Keep the header unchanged so other logic (e.g. sending the \"Wasilisha swali\" button)
             # still works by checking the prefix \"5️⃣ Maswali ya Haraka\".
             reply = rewrite_info_answer(header, body, lang=session_language or "sw")
