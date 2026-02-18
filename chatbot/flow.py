@@ -8,7 +8,7 @@ import string
 from datetime import datetime, timedelta
 from django.conf import settings
 
-from .ai_utils import rewrite_info_answer
+from .ai_utils import rewrite_info_answer, answer_freeform_question
 
 # Common footer line used on AI-formatted informational replies
 FOOTER_LINE = "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
@@ -297,18 +297,33 @@ GREETING_WORDS = frozenset({
     "za sahizi", "za asubuhi",
 })
 
-# Complaint keywords: if user sends any of these, go directly to option 7 (Wasilisha Malalamiko)
-COMPLAINT_KEYWORDS = frozenset({
-    "kero", "malalamiko", "changamoto",
-})
+# Complaint: if user message contains any of these (substring), go to option 7 (Wasilisha Malalamiko)
+COMPLAINT_PHRASES = (
+    "malalamiko", "kero", "changamoto",
+    "nina malalamiko", "nataka kukalamika", "naomba kukalamika", "kuna malalamiko",
+)
 
-# Question keywords: if user sends any of these (in most states),
-# go to Maswali ya Haraka – submit question flow.
-# NOTE: We *skip* this shortcut when the user is in TRACK_CHOICE,
-# so that typing "swali"/"maswali" there is treated as "Maswali" for tracking.
+# Question keywords: exact match only – go to submit-question flow (e.g. "swali", "maswali")
+# NOTE: We *skip* this when in TRACK_CHOICE so "swali"/"maswali" is used for tracking.
 QUESTION_KEYWORDS = frozenset({
     "swali", "maswali",
 })
+
+# Messages that look like menu choices – do not run free-form Q&A on these
+MENU_LIKE_PHRASES = frozenset({
+    "menyu kuu", "wasilisha swali", "malalamiko", "maswali",
+    "fuatilia tiketi", "fuatilia tiketi yangu",
+})
+
+# No-answer reply: direct user to write their question or press #
+NO_ANSWER_REPLY_SW = (
+    "Samahani, hatuna jibu la swali lako kwenye mfumo wetu wa taarifa.\n\n"
+    "Andika swali lako vizuri na utapata majibu ndani ya masaa 24, au bonyeza # kuendelea na huduma zilizopo."
+)
+NO_ANSWER_REPLY_EN = (
+    "Sorry, we don't have an answer to your question in our information system.\n\n"
+    "Write your question clearly and you will get a reply within 24 hours, or press # to continue with existing services."
+)
 
 
 def process_message(session_state, session_context, session_language, user_message, profile_name=None):
@@ -339,8 +354,8 @@ def process_message(session_state, session_context, session_language, user_messa
         reply = get_welcome_message(session_language or "sw", name=name)
         return next_state, ctx, reply
 
-    # ----- Complaint keywords: go directly to option 7 (Wasilisha Malalamiko) -----
-    if msg_lower in COMPLAINT_KEYWORDS:
+    # ----- Complaint intent (substring): go to option 7 (Wasilisha Malalamiko) -----
+    if any(phrase in msg_lower for phrase in COMPLAINT_PHRASES):
         next_state = SUBMIT_DEPT
         ctx.pop("submit_dept", None)
         reply = (
@@ -351,6 +366,27 @@ def process_message(session_state, session_context, session_language, user_messa
             "4️⃣ Maji\n"
             "5️⃣ Biashara na Soko"
         )
+        return next_state, ctx, reply
+
+    # ----- Free-form question: try to answer from taarifa.md (any step) -----
+    # Skip when already in SUBMIT_QUESTION so the user can type and submit their question.
+    # Only for message that looks like a question (length + ? or space), not menu phrases.
+    if (
+        state != SUBMIT_QUESTION
+        and len(msg) >= 6
+        and ("?" in msg or " " in msg)
+        and msg_lower not in MENU_LIKE_PHRASES
+    ):
+        answer_text, answered = answer_freeform_question(msg, session_language or "sw")
+        if answered and answer_text:
+            next_state = MAIN_MENU
+            ctx = {}
+            reply = answer_text.rstrip() + "\n\n" + FOOTER_LINE
+            return next_state, ctx, reply
+        # No answer in taarifa: send to swali section with prompt
+        next_state = SUBMIT_QUESTION
+        ctx = {}
+        reply = NO_ANSWER_REPLY_SW if (session_language or "sw") == "sw" else NO_ANSWER_REPLY_EN
         return next_state, ctx, reply
 
     # ----- Question keywords (e.g. "swali"): go to Maswali ya Haraka – submit question flow -----

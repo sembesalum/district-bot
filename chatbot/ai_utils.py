@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 import requests
 from django.conf import settings
@@ -8,6 +8,9 @@ from django.conf import settings
 
 OPENAI_API_KEY: Optional[str] = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL: str = getattr(settings, "OPENAI_MODEL", None) or os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+
+# Sentinel: when the model says the document has no answer
+NO_ANSWER_MARKER = "NO_ANSWER"
 
 
 def _load_taarifa_text() -> str:
@@ -131,4 +134,43 @@ def rewrite_info_answer(header: str, body: str, lang: str = "sw") -> str:
     if header:
         return f"{header}\n\n{new_body}"
     return new_body
+
+
+def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optional[str], bool]:
+    """
+    Check if the user's free-form question can be answered from taarifa.md.
+    Returns (answer_text, answered).
+    - If the document has an answer: (answer_text, True). answer_text is in Kiswahili.
+    - If no answer or API/taarifa missing: (None, False). Caller should show no-answer prompt.
+    """
+    user_message = (user_message or "").strip()
+    if not user_message:
+        return None, False
+    if not OPENAI_API_KEY or not TAARIFA_TEXT:
+        return None, False
+
+    target_lang = "Kiswahili" if (lang or "sw") == "sw" else "English"
+    system_msg = (
+        "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa hati ya taarifa ya Wilaya (taarifa.md). "
+        "Kazi yako: kama swali la mtumiaji linajibiwa kwa taarifa iliyomo kwenye hati, jibu kwa lugha ya Kiswahili, "
+        "kwa ufupi na kwa maneno ya binadamu. Kama hati HAINA taarifa inayojibu swali hilo, jibu kwa neno moja tu: NO_ANSWER. "
+        "Usiongeze mambo yasiyomo kwenye hati."
+    )
+    user_msg = (
+        f"Hati ya taarifa (taarifa.md):\n\n{TAARIFA_TEXT}\n\n"
+        f"Swali la mtumiaji: {user_message}\n\n"
+        f"Jibu kwa {target_lang} ikiwa jibu liko kwenye hati; vinginevyo andika NO_ANSWER tu."
+    )
+    response = _call_openai_chat(
+        [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": user_msg},
+        ]
+    )
+    if not response:
+        return None, False
+    response_clean = response.strip()
+    if response_clean.upper() == NO_ANSWER_MARKER or NO_ANSWER_MARKER in response_clean.upper():
+        return None, False
+    return response_clean, True
 
