@@ -153,7 +153,8 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
     system_msg = (
         "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa hati ya taarifa ya Wilaya (taarifa.md). "
         "Kazi yako: kama swali la mtumiaji linajibiwa kwa taarifa iliyomo kwenye hati, jibu kwa lugha ya Kiswahili, "
-        "kwa ufupi na kwa maneno ya binadamu. Kama hati HAINA taarifa inayojibu swali hilo, jibu kwa neno moja tu: NO_ANSWER. "
+        "kwa ufupi na kwa maneno ya binadamu. Tumia namba na majina kama yalivyo kwenye hati. "
+        "Kama hati HAINA taarifa inayojibu swali hilo kabisa, jibu kwa neno moja tu: NO_ANSWER. "
         "Usiongeze mambo yasiyomo kwenye hati."
     )
     user_msg = (
@@ -170,7 +171,8 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
     if not response:
         return None, False
     response_clean = response.strip()
-    if response_clean.upper() == NO_ANSWER_MARKER or NO_ANSWER_MARKER in response_clean.upper():
+    # Treat NO_ANSWER only when it is the whole response, to avoid false negatives
+    if response_clean.upper() == NO_ANSWER_MARKER:
         return None, False
     return response_clean, True
 
