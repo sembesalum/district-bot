@@ -11,7 +11,7 @@ from django.conf import settings
 from .ai_utils import rewrite_info_answer, answer_freeform_question
 
 # Common footer line used on AI-formatted informational replies
-FOOTER_LINE = "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+FOOTER_LINE = "👉 Unaweza uliza swali lingine au Jibu # kuanza upya."
 
 # ---- States ----
 WELCOME = "welcome"
@@ -56,8 +56,8 @@ def _dept_list(with_other=True):
 
 
 def _t(lang, en, sw):
-    """Return English or Kiswahili text by lang ('en' or 'sw'). Default Kiswahili."""
-    return en if (lang or "sw") == "en" else sw
+    """Always return Kiswahili (English removed)."""
+    return sw
 
 
 def _invalid_option(lang="sw"):
@@ -316,13 +316,9 @@ MENU_LIKE_PHRASES = frozenset({
 })
 
 # No-answer reply: direct user to write their question or press #
-NO_ANSWER_REPLY_SW = (
+NO_ANSWER_REPLY = (
     "Samahani, hatuna jibu la swali lako kwenye mfumo wetu wa taarifa.\n\n"
     "Andika swali lako vizuri na utapata majibu ndani ya masaa 24, au bonyeza # kuendelea na huduma zilizopo."
-)
-NO_ANSWER_REPLY_EN = (
-    "Sorry, we don't have an answer to your question in our information system.\n\n"
-    "Write your question clearly and you will get a reply within 24 hours, or press # to continue with existing services."
 )
 
 
@@ -386,7 +382,7 @@ def process_message(session_state, session_context, session_language, user_messa
         # No answer in taarifa: send to swali section with prompt
         next_state = SUBMIT_QUESTION
         ctx = {}
-        reply = NO_ANSWER_REPLY_SW if (session_language or "sw") == "sw" else NO_ANSWER_REPLY_EN
+        reply = NO_ANSWER_REPLY
         return next_state, ctx, reply
 
     # ----- Question keywords (e.g. "swali"): go to Maswali ya Haraka – submit question flow -----
@@ -558,7 +554,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "Fursa za uwekezaji zipo katika maeneo yaliyotengwa Mji wa Chemba, Paranga na Kambi ya Nyasa, yenye miundombinu ya umeme, barabara na mawasiliano.\n\n"
                 "12. Sekta ya kilimo na mifugo ina mchango gani kwa Wilaya?\n"
                 "Takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara. Huduma za ugani, mifugo na chanjo zinatolewa ili kuongeza uzalishaji na kipato cha wananchi.\n\n"
-                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+                "👉 Unaweza uliza swali lingine au Jibu # kuanza upya."
             )
             next_state = MAIN_MENU
         elif msg == "6":

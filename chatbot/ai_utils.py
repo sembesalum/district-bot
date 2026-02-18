@@ -194,8 +194,8 @@ def rewrite_info_answer(header: str, body: str, lang: str = "sw") -> str:
     if not body.strip():
         return header
 
-    # Decide language hint – for now we always prefer Kiswahili.
-    target_lang = "Kiswahili" if (lang or "sw") == "sw" else "English"
+    # Kiswahili only.
+    target_lang = "Kiswahili"
 
     system_msg = (
         "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba.\n"
@@ -226,19 +226,12 @@ def rewrite_info_answer(header: str, body: str, lang: str = "sw") -> str:
     )
 
     if not new_body:
-        # If the AI call fails, return a single, friendly fallback message
-        # instead of dumping the original long technical text.
-        if (lang or "sw") == "en":
-            fallback_body = (
-                "Sorry, detailed information is temporarily unavailable. "
-                "Please try again later or contact the district office for more details."
-            )
-        else:
-            fallback_body = (
-                "Samahani, taarifa kamili haipatikani kwa sasa. "
-                "Tafadhali jaribu tena baadaye au wasiliana na ofisi ya Wilaya ya Chemba "
-                "kwa maelezo zaidi."
-            )
+        # If the AI call fails, return a single, friendly fallback (Kiswahili only).
+        fallback_body = (
+            "Samahani, taarifa kamili haipatikani kwa sasa. "
+            "Tafadhali jaribu tena baadaye au wasiliana na ofisi ya Wilaya ya Chemba "
+            "kwa maelezo zaidi."
+        )
         if header:
             return f"{header}\n\n{fallback_body}"
         return fallback_body
@@ -261,7 +254,7 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
     if not OPENAI_API_KEY or not TAARIFA_TEXT:
         return None, False
 
-    target_lang = "Kiswahili" if (lang or "sw") == "sw" else "English"
+    target_lang = "Kiswahili"
     system_msg = (
         "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa hati ya taarifa ya Wilaya (taarifa.md). "
         "Kazi yako: kama swali la mtumiaji linajibiwa kwa taarifa iliyomo kwenye hati, jibu kwa lugha ya Kiswahili, "
