@@ -10,6 +10,9 @@ from django.conf import settings
 
 from .ai_utils import rewrite_info_answer
 
+# Common footer line used on AI-formatted informational replies
+FOOTER_LINE = "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+
 # ---- States ----
 WELCOME = "welcome"
 MAIN_MENU = "main_menu"
@@ -410,14 +413,16 @@ def process_message(session_state, session_context, session_language, user_messa
                 "  - Uwazi: Kukuza uwazi na upatikanaji wa taarifa ili kuongeza imani ya umma.\n"
                 "  - Uadilifu: Kudumisha uaminifu, maadili mema, utawala wa sheria, na heshima kwa utu wa binadamu.\n"
                 "  - Ubunifu wa Kimaendeleo: Kuweka na kutumia mbinu bunifu kuboresha utoaji wa huduma na maendeleo ya uchumi wa eneo.\n"
-                "  - Ushirikiano na Kazi kwa Pamoja: Kukuza ushirikiano miongoni mwa watumishi, wadau, na washirika wa maendeleo.\n\n"
-                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+                "  - Ushirikiano na Kazi kwa Pamoja: Kukuza ushirikiano miongoni mwa watumishi, wadau, na washirika wa maendeleo."
             )
             if "\n\n" in base:
                 header, body = base.split("\n\n", 1)
             else:
                 header, body = base, ""
             reply = rewrite_info_answer(header, body, lang=session_language or "sw")
+            # Ensure common footer is present exactly once
+            if not reply.strip().endswith(FOOTER_LINE):
+                reply = reply.rstrip() + "\n\n" + FOOTER_LINE
             next_state = MAIN_MENU
         elif msg == "2":
             # Taasisi za Serikali – full content from taarifa.md, rewritten via AI
@@ -444,14 +449,15 @@ def process_message(session_state, session_context, session_language, user_messa
                 "pamoja na vyeti vya kuasili ndani ya siku 3 baada ya kukamilisha taratibu husika.\n\n"
                 "• TFS: Wakala wa Huduma za Misitu Tanzania (TFS) ni taasisi ya serikali iliyopewa jukumu la kusimamia kwa "
                 "uendelevu na kuhifadhi rasilimali za misitu na nyuki nchini Tanzania. TFS ilianzishwa mwaka 2010 kwa lengo la "
-                "kulinda mifumo hii muhimu ya ikolojia kwa manufaa ya vizazi vya sasa na vijavyo.\n\n"
-                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+                "kulinda mifumo hii muhimu ya ikolojia kwa manufaa ya vizazi vya sasa na vijavyo."
             )
             if "\n\n" in base:
                 header, body = base.split("\n\n", 1)
             else:
                 header, body = base, ""
             reply = rewrite_info_answer(header, body, lang=session_language or "sw")
+            if not reply.strip().endswith(FOOTER_LINE):
+                reply = reply.rstrip() + "\n\n" + FOOTER_LINE
             next_state = MAIN_MENU
         elif msg == "3":
             # Halmashauri ya Wilaya – open sub-menu to avoid long single message
@@ -478,18 +484,19 @@ def process_message(session_state, session_context, session_language, user_messa
             base = (
                 "4️⃣ Fursa zilizopo katika Wilaya ya Chemba\n\n"
                 "• Uwepo wa maeneo yaliyotengwa kwa ajili ya uwekezaji katika Mji wa Chemba, Paranga na Kambi ya Nyasa.\n\n"
-                "Maeneo haya yana miundombinu wezeshi kama umeme, barabara na mawasiliano yanayorahisisha uwekezaji na shughuli za kiuchumi.\n\n"
-                "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
+                "Maeneo haya yana miundombinu wezeshi kama umeme, barabara na mawasiliano yanayorahisisha uwekezaji na shughuli za kiuchumi."
             )
             if "\n\n" in base:
                 header, body = base.split("\n\n", 1)
             else:
                 header, body = base, ""
             reply = rewrite_info_answer(header, body, lang=session_language or "sw")
+            if not reply.strip().endswith(FOOTER_LINE):
+                reply = reply.rstrip() + "\n\n" + FOOTER_LINE
             next_state = MAIN_MENU
         elif msg == "5":
-            # Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ), rewritten via AI
-            base = (
+            # Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ) – STATIC, no AI
+            reply = (
                 "5️⃣ Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ)\n\n"
                 "1. Wilaya ya Chemba ipo katika eneo gani na inapakana na wilaya zipi?\n"
                 "Wilaya ya Chemba ipo Mkoa wa Dodoma. Inapakana na Wilaya ya Kondoa (Kaskazini), Kiteto (Mashariki), Bahi (Kusini), Chamwino (Kusini Mashariki), Manyoni na Singida (Magharibi), na Hanang (Kaskazini Magharibi).\n\n"
@@ -517,13 +524,6 @@ def process_message(session_state, session_context, session_language, user_messa
                 "Takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara. Huduma za ugani, mifugo na chanjo zinatolewa ili kuongeza uzalishaji na kipato cha wananchi.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
-            if "\n\n" in base:
-                header, body = base.split("\n\n", 1)
-            else:
-                header, body = base, ""
-            # Keep the header unchanged so other logic (e.g. sending the \"Wasilisha swali\" button)
-            # still works by checking the prefix \"5️⃣ Maswali ya Haraka\".
-            reply = rewrite_info_answer(header, body, lang=session_language or "sw")
             next_state = MAIN_MENU
         elif msg == "6":
             # Angalia Hali ya Maombi (re-use existing check status flow)
