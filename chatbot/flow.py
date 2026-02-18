@@ -8,6 +8,8 @@ import string
 from datetime import datetime, timedelta
 from django.conf import settings
 
+from .ai_utils import rewrite_info_answer
+
 # ---- States ----
 WELCOME = "welcome"
 MAIN_MENU = "main_menu"
@@ -386,8 +388,8 @@ def process_message(session_state, session_context, session_language, user_messa
     if state == MAIN_MENU:
         # For now, we only use Kiswahili.
         if msg == "1":
-            # Utangulizi wa Wilaya – full content from taarifa.md
-            reply = (
+            # Utangulizi wa Wilaya – full content from taarifa.md, rewritten via AI
+            base = (
                 "1️⃣ Utangulizi wa Wilaya ya Chemba\n\n"
                 "• Jiografia na mipaka ya Wilaya: Wilaya ya Chemba kwa upande wa Kaskazini imepakana na Wilaya ya Kondoa, "
                 "Mashariki imepakana na Wilaya ya Kiteto, Kusini imepakana na Wilaya ya Bahi, Kusini Mashariki imepakana na "
@@ -411,10 +413,12 @@ def process_message(session_state, session_context, session_language, user_messa
                 "  - Ushirikiano na Kazi kwa Pamoja: Kukuza ushirikiano miongoni mwa watumishi, wadau, na washirika wa maendeleo.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
+            header, sep, body = base.split("\n\n", 1) if "\n\n" in base else (base, "", "")
+            reply = rewrite_info_answer(header, body, lang=session_language or "sw")
             next_state = MAIN_MENU
         elif msg == "2":
-            # Taasisi za Serikali – full content from taarifa.md
-            reply = (
+            # Taasisi za Serikali – full content from taarifa.md, rewritten via AI
+            base = (
                 "2️⃣ Taasisi za Serikali zinazopatikana ndani ya Wilaya ya Chemba\n\n"
                 "• TRA: Mamlaka ya Mapato Tanzania, ilianzishwa kwa Sheria ya Bunge Na. 11 ya mwaka 1995, na ilianza kufanya "
                 "kazi tarehe 1 Julai 1996. Katika kutekeleza majukumu yake ya kisheria, TRA inaongozwa kwa sheria na ina "
@@ -440,6 +444,8 @@ def process_message(session_state, session_context, session_language, user_messa
                 "kulinda mifumo hii muhimu ya ikolojia kwa manufaa ya vizazi vya sasa na vijavyo.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
+            header, sep, body = base.split("\n\n", 1) if "\n\n" in base else (base, "", "")
+            reply = rewrite_info_answer(header, body, lang=session_language or "sw")
             next_state = MAIN_MENU
         elif msg == "3":
             # Halmashauri ya Wilaya – open sub-menu to avoid long single message
@@ -462,17 +468,19 @@ def process_message(session_state, session_context, session_language, user_messa
                 "👉 Jibu kwa namba ya idara (1–10), au jibu 0 kurudi kwenye menyu kuu."
             )
         elif msg == "4":
-            # Fursa zilizopo katika Wilaya – content from taarifa.md (plus brief explanation)
-            reply = (
+            # Fursa zilizopo katika Wilaya – content from taarifa.md (plus brief explanation), rewritten via AI
+            base = (
                 "4️⃣ Fursa zilizopo katika Wilaya ya Chemba\n\n"
                 "• Uwepo wa maeneo yaliyotengwa kwa ajili ya uwekezaji katika Mji wa Chemba, Paranga na Kambi ya Nyasa.\n\n"
                 "Maeneo haya yana miundombinu wezeshi kama umeme, barabara na mawasiliano yanayorahisisha uwekezaji na shughuli za kiuchumi.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
+            header, sep, body = base.split("\n\n", 1) if "\n\n" in base else (base, "", "")
+            reply = rewrite_info_answer(header, body, lang=session_language or "sw")
             next_state = MAIN_MENU
         elif msg == "5":
-            # Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ)
-            reply = (
+            # Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ), rewritten via AI
+            base = (
                 "5️⃣ Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ)\n\n"
                 "1. Wilaya ya Chemba ipo katika eneo gani na inapakana na wilaya zipi?\n"
                 "Wilaya ya Chemba ipo Mkoa wa Dodoma. Inapakana na Wilaya ya Kondoa (Kaskazini), Kiteto (Mashariki), Bahi (Kusini), Chamwino (Kusini Mashariki), Manyoni na Singida (Magharibi), na Hanang (Kaskazini Magharibi).\n\n"
@@ -500,6 +508,10 @@ def process_message(session_state, session_context, session_language, user_messa
                 "Takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara. Huduma za ugani, mifugo na chanjo zinatolewa ili kuongeza uzalishaji na kipato cha wananchi.\n\n"
                 "👉 Unaweza kuchagua namba nyingine au jibu # kuanza upya."
             )
+            header, sep, body = base.split("\n\n", 1) if "\n\n" in base else (base, "", "")
+            # Keep the header unchanged so other logic (e.g. sending the \"Wasilisha swali\" button)
+            # still works by checking the prefix \"5️⃣ Maswali ya Haraka\".
+            reply = rewrite_info_answer(header, body, lang=session_language or "sw")
             next_state = MAIN_MENU
         elif msg == "6":
             # Angalia Hali ya Maombi (re-use existing check status flow)

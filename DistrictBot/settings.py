@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # WhatsApp Configuration (Phone ID 759679347239794 / WABA 1301319984813235)
@@ -21,6 +22,11 @@ WHATSAPP_BUSINESS_ID = "1491606039636455"
 
 # Support contact phone (used in complaint follow-up and FAQ responses)
 SUPPORT_PHONE = "255 000 000 000"
+
+# OpenAI configuration (used to rewrite taarifa/FAQ answers)
+# NOTE: no default value here – the key must come from the environment.
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
