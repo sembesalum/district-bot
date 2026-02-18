@@ -75,11 +75,9 @@ def rewrite_info_answer(header: str, body: str, lang: str = "sw") -> str:
     header = header or ""
     body = body or ""
 
-    # If no AI key or no taarifa content, just return original.
-    if not OPENAI_API_KEY or not TAARIFA_TEXT or not body.strip():
-        if header and body:
-            return f"{header}\n\n{body}"
-        return f"{header}{body}"
+    # If no body at all, just return header (nothing useful to rewrite).
+    if not body.strip():
+        return header
 
     # Decide language hint – for now we always prefer Kiswahili.
     target_lang = "Kiswahili" if (lang or "sw") == "sw" else "English"
@@ -113,10 +111,22 @@ def rewrite_info_answer(header: str, body: str, lang: str = "sw") -> str:
     )
 
     if not new_body:
-        # Fall back to original text on any failure
-        if header and body:
-            return f"{header}\n\n{body}"
-        return f"{header}{body}"
+        # If the AI call fails, return a single, friendly fallback message
+        # instead of dumping the original long technical text.
+        if (lang or "sw") == "en":
+            fallback_body = (
+                "Sorry, detailed information is temporarily unavailable. "
+                "Please try again later or contact the district office for more details."
+            )
+        else:
+            fallback_body = (
+                "Samahani, taarifa kamili haipatikani kwa sasa. "
+                "Tafadhali jaribu tena baadaye au wasiliana na ofisi ya Wilaya ya Chemba "
+                "kwa maelezo zaidi."
+            )
+        if header:
+            return f"{header}\n\n{fallback_body}"
+        return fallback_body
 
     if header:
         return f"{header}\n\n{new_body}"
