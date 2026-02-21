@@ -8,7 +8,7 @@ import string
 from datetime import datetime, timedelta
 from django.conf import settings
 
-from .ai_utils import rewrite_info_answer, answer_freeform_question
+from .ai_utils import rewrite_info_answer, answer_from_web_search
 
 # Common footer line used on AI-formatted informational replies
 FOOTER_LINE = "👉 Unaweza uliza swali lingine au Jibu # kuanza upya."
@@ -364,7 +364,7 @@ def process_message(session_state, session_context, session_language, user_messa
         )
         return next_state, ctx, reply
 
-    # ----- Free-form question: try to answer from taarifa.md (any step) -----
+    # ----- Free-form question: answer from internet search (Tanzania-focused) -----
     # Skip when already in SUBMIT_QUESTION so the user can type and submit their question.
     # Only for message that looks like a question (length + ? or space), not menu phrases.
     if (
@@ -373,13 +373,13 @@ def process_message(session_state, session_context, session_language, user_messa
         and ("?" in msg or " " in msg)
         and msg_lower not in MENU_LIKE_PHRASES
     ):
-        answer_text, answered = answer_freeform_question(msg, session_language or "sw")
+        answer_text, answered = answer_from_web_search(msg, session_language or "sw")
         if answered and answer_text:
             next_state = MAIN_MENU
             ctx = {}
             reply = answer_text.rstrip() + "\n\n" + FOOTER_LINE
             return next_state, ctx, reply
-        # No answer in taarifa: send to swali section with prompt
+        # No answer from search: send to swali section with prompt
         next_state = SUBMIT_QUESTION
         ctx = {}
         reply = NO_ANSWER_REPLY

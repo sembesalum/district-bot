@@ -1,9 +1,14 @@
 import os
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import requests
 from django.conf import settings
+
+try:
+    from duckduckgo_search import DDGS
+except ImportError:
+    DDGS = None
 
 
 OPENAI_API_KEY: Optional[str] = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
@@ -277,6 +282,72 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
         return None, False
     response_clean = response.strip()
     # Treat NO_ANSWER only when it is the whole response, to avoid false negatives
+    if response_clean.upper() == NO_ANSWER_MARKER:
+        return None, False
+    return response_clean, True
+
+
+def _search_web_tanzania(query: str, max_results: int = 8) -> List[dict]:
+    """
+    Search the web with query biased to Tanzania. Returns list of {title, body, href}.
+    """
+    if not DDGS:
+        return []
+    search_query = f"{query.strip()} Tanzania"
+    try:
+        results = list(DDGS().text(search_query, max_results=max_results))
+        return results
+    except Exception:
+        return []
+
+
+def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optional[str], bool]:
+    """
+    Answer the user's question using web search (Tanzania-focused) and AI.
+    Searches the internet for query + " Tanzania", then uses OpenAI to summarize
+    into a short Kiswahili reply. Returns (answer_text, True) or (None, False).
+    """
+    user_message = (user_message or "").strip()
+    if not user_message:
+        return None, False
+    if not OPENAI_API_KEY:
+        return None, False
+
+    results = _search_web_tanzania(user_message, max_results=8)
+    if not results:
+        return None, False
+
+    # Build context from search snippets (Tanzania-biased by query)
+    context_parts = []
+    for i, r in enumerate(results, 1):
+        title = (r.get("title") or "").strip()
+        body = (r.get("body") or "").strip()
+        if title or body:
+            context_parts.append(f"[{i}] {title}\n{body}")
+    search_context = "\n\n".join(context_parts)
+    if not search_context.strip():
+        return None, False
+
+    system_msg = (
+        "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa matokeo ya utafutaji wa mtandao "
+        "kuhusu Tanzania. Kazi yako: kutoka kwenye matokeo haya tu, andika jibu la swali la mtumiaji kwa Kiswahili, "
+        "kwa ufupi na inayofaa kwa WhatsApp. Tumia tu taarifa zilizo kwenye matokeo; ziangalie kuwa za Tanzania. "
+        "Usiongeze mambo yasiyomo. Ikiwa matokeo hayajibu swali, andika NO_ANSWER tu."
+    )
+    user_msg = (
+        f"Matokeo ya utafutaji (Tanzania):\n\n{search_context}\n\n"
+        f"Swali la mtumiaji: {user_message}\n\n"
+        "Jibu kwa Kiswahili kutoka kwenye matokeo hapa juu; ikiwa hakuna jibu, andika NO_ANSWER tu."
+    )
+    response = _call_openai_chat(
+        [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": user_msg},
+        ]
+    )
+    if not response:
+        return None, False
+    response_clean = response.strip()
     if response_clean.upper() == NO_ANSWER_MARKER:
         return None, False
     return response_clean, True
