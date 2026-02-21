@@ -2,4 +2,3 @@ Django
 requests
 python-decouple
 gunicorn
-duckduckgo-search

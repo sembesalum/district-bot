@@ -5,12 +5,6 @@ from typing import List, Optional, Tuple
 import requests
 from django.conf import settings
 
-try:
-    from duckduckgo_search import DDGS
-except ImportError:
-    DDGS = None
-
-
 OPENAI_API_KEY: Optional[str] = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL: str = getattr(settings, "OPENAI_MODEL", None) or os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 
@@ -287,115 +281,33 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
     return response_clean, True
 
 
-# Junk snippets to exclude (generic English, YouTube, etc.) — Tanzania answers only
-_JUNK_PHRASES = (
-    "youtube", "enjoy the videos", "upload original content", "share it all with friends",
-    "facebook", "instagram", "twitter", "watch on youtube", "subscribe to",
-)
-# Keywords that suggest Tanzania-relevant content (Swahili / place names)
-_TANZANIA_RELEVANT = (
-    "tanzania", "chemba", "dodoma", "mkoa", "wilaya", "kata", "tarafa", "halmashauri",
-    "wizara", "serikali", "bunge", "nchi", "afrika", "swahili", "kiswahili",
-)
-
-
-def _is_tanzania_relevant(title: str, body: str) -> bool:
-    """True if snippet looks relevant to Tanzania (place, gov, Swahili); False if junk."""
-    text = f"{title} {body}".lower()
-    for junk in _JUNK_PHRASES:
-        if junk in text:
-            return False
-    for word in _TANZANIA_RELEVANT:
-        if word in text:
-            return True
-    # If no junk but also no Tanzania keyword, allow only if it looks like Swahili (common words)
-    swahili_hint = any(
-        w in text for w in ("na ", "ya ", "wa ", "ni ", "kwa ", "katika", "huduma", "taarifa")
-    )
-    return swahili_hint
-
-
-def _search_web_tanzania(query: str, max_results: int = 8) -> List[dict]:
-    """
-    Search the web with query biased to Tanzania. Returns list of {title, body, href}.
-    Uses duckduckgo_search if available; supports both 'body' and 'snippet' keys.
-    """
-    if not query or not query.strip():
-        return []
-    search_query = f"{query.strip()} Tanzania"
-    results = []
-    if DDGS:
-        try:
-            gen = DDGS().text(search_query, max_results=max_results)
-            results = list(gen) if gen else []
-        except Exception:
-            pass
-    return results
-
-
 def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optional[str], bool]:
     """
-    Answer the user's question using web search (Tanzania-focused) only; no taarifa fallback.
-    Uses AI to summarize when OpenAI key is set; otherwise returns first snippet. Returns (answer_text, True) or (None, False).
+    Answer the user's free-form question using AI only (no web search).
+    AI answers in Kiswahili, about Tanzania only. Returns (answer_text, True) or (None, False).
     """
     user_message = (user_message or "").strip()
     if not user_message:
         return None, False
-
-    results = _search_web_tanzania(user_message, max_results=12)
-    # Keep only Tanzania-relevant snippets (exclude YouTube/generic English junk)
-    results = [
-        r for r in results
-        if _is_tanzania_relevant(
-            (r.get("title") or "").strip(),
-            (r.get("body") or r.get("snippet") or "").strip(),
-        )
-    ]
-
-    # Build context from search snippets (support both 'body' and 'snippet' keys)
-    context_parts = []
-    for i, r in enumerate(results, 1):
-        title = (r.get("title") or "").strip()
-        body = (r.get("body") or r.get("snippet") or "").strip()
-        if title or body:
-            context_parts.append(f"[{i}] {title}\n{body}")
-    search_context = "\n\n".join(context_parts)
-
-    if not search_context.strip():
+    if not OPENAI_API_KEY:
         return None, False
 
-    # We have search results: use OpenAI to summarize if available
-    if OPENAI_API_KEY:
-        system_msg = (
-            "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa matokeo ya utafutaji wa mtandao. "
-            "SHART: Jibu lazima liwe KWA KISWAHILI TU na kuhusu TANZANIA TU. Usitumie taarifa za nchi nyingine au lugha nyingine. "
-            "Kutoka kwenye matokeo haya tu, toa jibu la swali la mtumiaji kwa Kiswahili, kwa ufupi (inafaa kwa WhatsApp). "
-            "Ikiwa matokeo hayana taarifa zinazojibu swali kuhusu Tanzania, andika NO_ANSWER tu."
-        )
-        user_msg = (
-            f"Matokeo ya utafutaji:\n\n{search_context}\n\n"
-            f"Swali: {user_message}\n\n"
-            "Jibu kwa Kiswahili tu, kuhusu Tanzania tu. Ikiwa hakuna jibu katika matokeo, andika NO_ANSWER tu."
-        )
-        response = _call_openai_chat(
-            [
-                {"role": "system", "content": system_msg},
-                {"role": "user", "content": user_msg},
-            ]
-        )
-        if response:
-            response_clean = response.strip()
-            if response_clean.upper() != NO_ANSWER_MARKER:
-                return response_clean, True
-
-    # No OpenAI or AI said NO_ANSWER: use first Tanzania-relevant snippet only
-    for r in results:
-        first_body = (r.get("body") or r.get("snippet") or "").strip()
-        first_title = (r.get("title") or "").strip()
-        if (first_body or first_title) and _is_tanzania_relevant(first_title, first_body):
-            reply = f"{first_title}\n\n{first_body}" if first_title else first_body
-            if len(reply) > 600:
-                reply = reply[:597] + "..."
-            return reply, True
-    return None, False
+    system_msg = (
+        "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba, Tanzania. "
+        "Kazi yako: jibu swali la mtumiaji kwa KISWAHILI tu, kuhusu TANZANIA tu (mahali, serikali, wilaya, mikoa, huduma, n.k.). "
+        "Jibu kwa ufupi, inayofaa kwa WhatsApp. Tumia ujuzi wako wa kawaida kuhusu Tanzania. "
+        "Ikiwa swali halihusiani na Tanzania au huwezi kujibu kwa uhakika, andika NO_ANSWER tu."
+    )
+    response = _call_openai_chat(
+        [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": user_message},
+        ]
+    )
+    if not response:
+        return None, False
+    response_clean = response.strip()
+    if response_clean.upper() == NO_ANSWER_MARKER:
+        return None, False
+    return response_clean, True
 
