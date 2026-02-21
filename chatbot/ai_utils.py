@@ -290,65 +290,76 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
 def _search_web_tanzania(query: str, max_results: int = 8) -> List[dict]:
     """
     Search the web with query biased to Tanzania. Returns list of {title, body, href}.
+    Uses duckduckgo_search if available; supports both 'body' and 'snippet' keys.
     """
-    if not DDGS:
+    if not query or not query.strip():
         return []
     search_query = f"{query.strip()} Tanzania"
-    try:
-        results = list(DDGS().text(search_query, max_results=max_results))
-        return results
-    except Exception:
-        return []
+    results = []
+    if DDGS:
+        try:
+            gen = DDGS().text(search_query, max_results=max_results)
+            results = list(gen) if gen else []
+        except Exception:
+            pass
+    return results
 
 
 def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optional[str], bool]:
     """
-    Answer the user's question using web search (Tanzania-focused) and AI.
-    Searches the internet for query + " Tanzania", then uses OpenAI to summarize
-    into a short Kiswahili reply. Returns (answer_text, True) or (None, False).
+    Answer the user's question using web search (Tanzania-focused) only; no taarifa fallback.
+    Uses AI to summarize when OpenAI key is set; otherwise returns first snippet. Returns (answer_text, True) or (None, False).
     """
     user_message = (user_message or "").strip()
     if not user_message:
         return None, False
-    if not OPENAI_API_KEY:
-        return None, False
 
     results = _search_web_tanzania(user_message, max_results=8)
-    if not results:
-        return None, False
 
-    # Build context from search snippets (Tanzania-biased by query)
+    # Build context from search snippets (support both 'body' and 'snippet' keys)
     context_parts = []
     for i, r in enumerate(results, 1):
         title = (r.get("title") or "").strip()
-        body = (r.get("body") or "").strip()
+        body = (r.get("body") or r.get("snippet") or "").strip()
         if title or body:
             context_parts.append(f"[{i}] {title}\n{body}")
     search_context = "\n\n".join(context_parts)
+
     if not search_context.strip():
+        # No search results from internet: do not use taarifa; caller will show no-answer message
         return None, False
 
-    system_msg = (
-        "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa matokeo ya utafutaji wa mtandao "
-        "kuhusu Tanzania. Kazi yako: kutoka kwenye matokeo haya tu, andika jibu la swali la mtumiaji kwa Kiswahili, "
-        "kwa ufupi na inayofaa kwa WhatsApp. Tumia tu taarifa zilizo kwenye matokeo; ziangalie kuwa za Tanzania. "
-        "Usiongeze mambo yasiyomo. Ikiwa matokeo hayajibu swali, andika NO_ANSWER tu."
-    )
-    user_msg = (
-        f"Matokeo ya utafutaji (Tanzania):\n\n{search_context}\n\n"
-        f"Swali la mtumiaji: {user_message}\n\n"
-        "Jibu kwa Kiswahili kutoka kwenye matokeo hapa juu; ikiwa hakuna jibu, andika NO_ANSWER tu."
-    )
-    response = _call_openai_chat(
-        [
-            {"role": "system", "content": system_msg},
-            {"role": "user", "content": user_msg},
-        ]
-    )
-    if not response:
-        return None, False
-    response_clean = response.strip()
-    if response_clean.upper() == NO_ANSWER_MARKER:
-        return None, False
-    return response_clean, True
+    # We have search results: use OpenAI to summarize if available
+    if OPENAI_API_KEY:
+        system_msg = (
+            "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa matokeo ya utafutaji wa mtandao kuhusu Tanzania. "
+            "Kazi yako: kutoka kwenye matokeo haya, toa jibu la swali la mtumiaji kwa Kiswahili, kwa ufupi (inafaa kwa WhatsApp). "
+            "Tumia taarifa zilizo kwenye matokeo. Jibu lazima liwe na maana; ikiwa matokeo yana chochote kinachohusiana na swali, jibu kwa kutumia hizo taarifa. "
+            "Andika NO_ANSWER tu ikiwa matokeo hayana hata kidokezo kinachojibu swali."
+        )
+        user_msg = (
+            f"Matokeo ya utafutaji:\n\n{search_context}\n\n"
+            f"Swali: {user_message}\n\n"
+            "Jibu kwa Kiswahili, kwa ufupi. Ikiwa matokeo hayajibu kabisa, andika NO_ANSWER tu."
+        )
+        response = _call_openai_chat(
+            [
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": user_msg},
+            ]
+        )
+        if response:
+            response_clean = response.strip()
+            if response_clean.upper() != NO_ANSWER_MARKER:
+                return response_clean, True
+
+    # No OpenAI or AI said NO_ANSWER: return first snippet so user still gets something
+    first_body = (results[0].get("body") or results[0].get("snippet") or "").strip()
+    first_title = (results[0].get("title") or "").strip()
+    if first_body or first_title:
+        reply = f"{first_title}\n\n{first_body}" if first_title else first_body
+        if len(reply) > 600:
+            reply = reply[:597] + "..."
+        return reply, True
+    return None, False
 
