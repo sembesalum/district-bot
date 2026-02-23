@@ -136,3 +136,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
+
+# Dashboard auth (login required for dashboard)
+LOGIN_URL = '/dashboard/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'

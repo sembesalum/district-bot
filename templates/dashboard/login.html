@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingia – Dashboard | Halmashauri Wilaya ya Chemba</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0c4a6e;
+            --primary-light: #0e7490;
+            --primary-dark: #082f49;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --error: #dc2626;
+            --error-bg: #fef2f2;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.06);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            font-size: 15px;
+            line-height: 1.55;
+            color: var(--text);
+            background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .auth-header img {
+            height: 52px;
+            width: auto;
+            border-radius: var(--radius-sm);
+        }
+        .auth-header h1 {
+            margin: 0.5rem 0 0.25rem 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .auth-header p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+        .card h2 {
+            margin: 0 0 1.25rem 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+        }
+        .messages li {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .messages .error {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+        .messages .success {
+            background: #ecfdf5;
+            color: #047857;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9rem;
+            margin-bottom: 0.35rem;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(12, 74, 110, 0.15);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.65rem 1rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            margin-top: 0.25rem;
+        }
+        .btn-primary:hover { background: var(--primary-light); }
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .auth-footer a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="auth-header">
+        <img src="{% static 'dashboard/chemba-logo.png' %}" alt="Chemba" onerror="this.style.display='none'">
+        <h1>Dashboard – Maswali na Malalamiko</h1>
+        <p>Halmashauri ya Wilaya ya Chemba</p>
+    </div>
+    <div class="card">
+        <h2>Ingia kwa akaunti yako</h2>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <form method="post" action="{% url 'dashboard:login' %}">
+            {% csrf_token %}
+            <label for="id_username">Jina la mtumiaji</label>
+            <input type="text" id="id_username" name="username" required autofocus placeholder="Jina la mtumiaji">
+            <label for="id_password">Nenosiri</label>
+            <input type="password" id="id_password" name="password" required placeholder="Nenosiri">
+            <button type="submit" class="btn btn-primary">Ingia</button>
+        </form>
+        <p class="auth-footer">
+            Huna akaunti? <a href="{% url 'dashboard:register' %}">Jisajili hapa</a>
+        </p>
+    </div>
+</body>
+</html>
