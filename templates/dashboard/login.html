@@ -173,9 +173,7 @@
             <input type="password" id="id_password" name="password" required placeholder="Nenosiri">
             <button type="submit" class="btn btn-primary">Ingia</button>
         </form>
-        <p class="auth-footer">
-            Huna akaunti? <a href="{% url 'dashboard:register' %}">Jisajili hapa</a>
-        </p>
+        {% comment %} Huna akaunti? Jisajili hapa – hidden for now {% endcomment %}
     </div>
 </body>
 </html>
