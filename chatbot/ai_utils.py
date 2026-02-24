@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -182,6 +183,38 @@ def _load_taarifa_text() -> str:
 TAARIFA_TEXT: str = TAARIFA_MD_SNIPPET + "\n\n" + TAARIFA_MD_SNIPPET2
 
 
+CHEMBADC_URL = "https://chembadc.go.tz/"
+
+
+def _fetch_chembadc_text(max_chars: int = 8000) -> str:
+    """
+    Fetch main page content from the official Chemba DC website and extract plain text.
+    Only this .go.tz domain is used as the secondary official source.
+    """
+    try:
+        resp = requests.get(
+            CHEMBADC_URL,
+            timeout=10,
+            headers={"User-Agent": "ChembaBot/1.0 (+https://chembadc.go.tz/)"},
+        )
+        if resp.status_code != 200 or not resp.text:
+            return ""
+        html = resp.text
+        # Remove script/style blocks
+        html = re.sub(r"<(script|style)[^>]*>.*?</\\1>", " ", html, flags=re.IGNORECASE | re.DOTALL)
+        # Convert common line-break tags to newlines
+        html = re.sub(r"<br\\s*/?>", "\n", html, flags=re.IGNORECASE)
+        # Strip all remaining tags
+        text = re.sub(r"<[^>]+>", " ", html)
+        # Collapse whitespace
+        text = re.sub(r"\\s+", " ", text).strip()
+        if len(text) > max_chars:
+            text = text[:max_chars]
+        return text
+    except Exception:
+        return ""
+
+
 def _call_openai_chat(messages: list[dict]) -> Optional[str]:
     """
     Minimal wrapper around OpenAI Chat Completions API, using requests.
@@ -351,10 +384,27 @@ def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optiona
         "Do NOT generate speculative or unverified information. If information is not available from these official "
         "sources, reply with exactly: Information not available in official sources."
     )
+
+    # Fetch official Chemba DC website content (secondary source)
+    site_text = _fetch_chembadc_text()
+    if site_text:
+        user_content = (
+            "Hii ni nukuu ya ukurasa wa tovuti rasmi ya Halmashauri ya Wilaya ya Chemba "
+            "(https://chembadc.go.tz/):\n\n"
+            f"{site_text}\n\n"
+            f"Swali la mtumiaji: {user_message}\n\n"
+            "Jibu kwa Kiswahili, ukitumia tu taarifa kutoka kwenye hati ya taarifa au nukuu ya tovuti "
+            "na maarifa yako ya tovuti rasmi za serikali (.go.tz). "
+            "Ikiwa taarifa haipo katika vyanzo hivi rasmi, andika: Information not available in official sources."
+        )
+    else:
+        # If website content is not reachable, fall back to using only model's knowledge of official sources
+        user_content = user_message
+
     response = _call_openai_chat(
         [
             {"role": "system", "content": system_msg},
-            {"role": "user", "content": user_message},
+            {"role": "user", "content": user_content},
         ]
     )
     if not response:
