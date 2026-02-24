@@ -1,8 +1,10 @@
 import os
 import re
 import logging
+import time
 from pathlib import Path
 from typing import List, Optional, Tuple
+from urllib.parse import urljoin, urlparse
 
 import requests
 from django.conf import settings
@@ -189,37 +191,101 @@ TAARIFA_TEXT: str = TAARIFA_MD_SNIPPET + "\n\n" + TAARIFA_MD_SNIPPET2
 CHEMBADC_URL = "https://chembadc.go.tz/"
 
 
+_CHEMBADC_CACHE_TEXT: str = ""
+_CHEMBADC_CACHE_TS: float | None = None
+_CHEMBADC_CACHE_TTL_SECONDS = 3600  # 1 hour
+
+
 def _fetch_chembadc_text(max_chars: int = 8000) -> str:
     """
-    Fetch main page content from the official Chemba DC website and extract plain text.
-    Only this .go.tz domain is used as the secondary official source.
+    Fetch and aggregate text from multiple pages on the official Chemba DC website.
+    - Crawls only within https://chembadc.go.tz/
+    - Limits number of pages and total characters
+    - Uses a short cache to avoid hitting the site on every question
     """
-    logger.info("ChembaBot: fetching official site %s", CHEMBADC_URL)
-    try:
-        resp = requests.get(
-            CHEMBADC_URL,
-            timeout=10,
-            headers={"User-Agent": "ChembaBot/1.0 (+https://chembadc.go.tz/)"},
-        )
-        logger.info("ChembaBot: %s status_code=%s length=%s", CHEMBADC_URL, resp.status_code, len(resp.text or ""))
-        if resp.status_code != 200 or not resp.text:
-            return ""
-        html = resp.text
-        # Remove script/style blocks
-        html = re.sub(r"<(script|style)[^>]*>.*?</\\1>", " ", html, flags=re.IGNORECASE | re.DOTALL)
-        # Convert common line-break tags to newlines
-        html = re.sub(r"<br\\s*/?>", "\n", html, flags=re.IGNORECASE)
-        # Strip all remaining tags
-        text = re.sub(r"<[^>]+>", " ", html)
-        # Collapse whitespace
-        text = re.sub(r"\\s+", " ", text).strip()
-        if len(text) > max_chars:
-            text = text[:max_chars]
-        logger.info("ChembaBot: extracted chembadc text length=%s", len(text))
-        return text
-    except Exception as e:
-        logger.exception("ChembaBot: error fetching %s: %s", CHEMBADC_URL, e)
+    global _CHEMBADC_CACHE_TEXT, _CHEMBADC_CACHE_TS
+
+    now = time.time()
+    if _CHEMBADC_CACHE_TS and _CHEMBADC_CACHE_TEXT and (now - _CHEMBADC_CACHE_TS) < _CHEMBADC_CACHE_TTL_SECONDS:
+        logger.info("ChembaBot: using cached chembadc.go.tz text (len=%s)", len(_CHEMBADC_CACHE_TEXT))
+        return _CHEMBADC_CACHE_TEXT[:max_chars]
+
+    logger.info("ChembaBot: crawling official site %s", CHEMBADC_URL)
+    root_netloc = urlparse(CHEMBADC_URL).netloc
+    to_visit: List[str] = [CHEMBADC_URL]
+    visited: set[str] = set()
+    texts: List[str] = []
+    total_len = 0
+    max_pages = 8
+    hard_char_limit = max_chars * 2  # fetch a bit more, then trim
+
+    while to_visit and len(visited) < max_pages and total_len < hard_char_limit:
+        url = to_visit.pop(0)
+        if url in visited:
+            continue
+        visited.add(url)
+        logger.info("ChembaBot: fetching %s", url)
+        try:
+            resp = requests.get(
+                url,
+                timeout=10,
+                headers={"User-Agent": "ChembaBot/1.0 (+https://chembadc.go.tz/)"},
+            )
+            logger.info(
+                "ChembaBot: %s status_code=%s length=%s",
+                url,
+                resp.status_code,
+                len(resp.text or ""),
+            )
+            if resp.status_code != 200 or not resp.text:
+                continue
+            html = resp.text
+            # Collect internal links for further crawling (same domain only)
+            for href in re.findall(r'href=["\']([^"\']+)["\']', html):
+                full = urljoin(url, href)
+                parsed = urlparse(full)
+                if parsed.netloc != root_netloc:
+                    continue
+                # Normalise to avoid fragments and query-only duplicates
+                clean = parsed._replace(fragment="", query="").geturl()
+                if clean not in visited and clean not in to_visit:
+                    to_visit.append(clean)
+
+            # Remove script/style blocks
+            html = re.sub(
+                r"<(script|style)[^>]*>.*?</\1>",
+                " ",
+                html,
+                flags=re.IGNORECASE | re.DOTALL,
+            )
+            # Convert common line-break tags to newlines
+            html = re.sub(r"<br\s*/?>", "\n", html, flags=re.IGNORECASE)
+            # Strip all remaining tags
+            text = re.sub(r"<[^>]+>", " ", html)
+            # Collapse whitespace
+            text = re.sub(r"\s+", " ", text).strip()
+            if not text:
+                continue
+            texts.append(text)
+            total_len += len(text)
+        except Exception as e:
+            logger.exception("ChembaBot: error fetching %s: %s", url, e)
+            continue
+
+    combined = " ".join(texts).strip()
+    if not combined:
+        logger.warning("ChembaBot: no text extracted from chembadc.go.tz")
         return ""
+    if len(combined) > max_chars:
+        combined = combined[:max_chars]
+    _CHEMBADC_CACHE_TEXT = combined
+    _CHEMBADC_CACHE_TS = now
+    logger.info(
+        "ChembaBot: aggregated chembadc.go.tz text len=%s from pages=%s",
+        len(combined),
+        len(visited),
+    )
+    return combined
 
 
 def _call_openai_chat(messages: list[dict]) -> Optional[str]:
