@@ -1,10 +1,13 @@
 import os
 import re
+import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
 import requests
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 OPENAI_API_KEY: Optional[str] = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL: str = getattr(settings, "OPENAI_MODEL", None) or os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
@@ -191,12 +194,14 @@ def _fetch_chembadc_text(max_chars: int = 8000) -> str:
     Fetch main page content from the official Chemba DC website and extract plain text.
     Only this .go.tz domain is used as the secondary official source.
     """
+    logger.info("ChembaBot: fetching official site %s", CHEMBADC_URL)
     try:
         resp = requests.get(
             CHEMBADC_URL,
             timeout=10,
             headers={"User-Agent": "ChembaBot/1.0 (+https://chembadc.go.tz/)"},
         )
+        logger.info("ChembaBot: %s status_code=%s length=%s", CHEMBADC_URL, resp.status_code, len(resp.text or ""))
         if resp.status_code != 200 or not resp.text:
             return ""
         html = resp.text
@@ -210,8 +215,10 @@ def _fetch_chembadc_text(max_chars: int = 8000) -> str:
         text = re.sub(r"\\s+", " ", text).strip()
         if len(text) > max_chars:
             text = text[:max_chars]
+        logger.info("ChembaBot: extracted chembadc text length=%s", len(text))
         return text
-    except Exception:
+    except Exception as e:
+        logger.exception("ChembaBot: error fetching %s: %s", CHEMBADC_URL, e)
         return ""
 
 
@@ -323,6 +330,7 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
     if not user_message:
         return None, False
     if not OPENAI_API_KEY or not TAARIFA_TEXT:
+        logger.warning("ChembaBot: answer_freeform_question skipped (missing OPENAI_API_KEY or TAARIFA_TEXT)")
         return None, False
 
     target_lang = "Kiswahili"
@@ -338,6 +346,7 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
         f"Swali la mtumiaji: {user_message}\n\n"
         f"Jibu kwa {target_lang} ikiwa jibu liko kwenye hati; vinginevyo andika NO_ANSWER tu."
     )
+    logger.info("ChembaBot: answer_freeform_question using taarifa.md only")
     response = _call_openai_chat(
         [
             {"role": "system", "content": system_msg},
@@ -345,11 +354,14 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
         ]
     )
     if not response:
+        logger.warning("ChembaBot: answer_freeform_question got no response from OpenAI")
         return None, False
     response_clean = response.strip()
     # Treat NO_ANSWER only when it is the whole response, to avoid false negatives
     if response_clean.upper() == NO_ANSWER_MARKER:
+        logger.info("ChembaBot: answer_freeform_question → NO_ANSWER from taarifa.md")
         return None, False
+    logger.info("ChembaBot: answer_freeform_question answered from taarifa.md")
     return response_clean, True
 
 
@@ -365,12 +377,17 @@ def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optiona
     if not user_message:
         return None, False
     if not OPENAI_API_KEY:
+        logger.warning("ChembaBot: answer_from_web_search skipped (missing OPENAI_API_KEY)")
         return None, False
+
+    logger.info("ChembaBot: free-form question received: %s", user_message)
 
     # Step 1: try to answer from local taarifa snippets only
     doc_answer, doc_answered = answer_freeform_question(user_message, lang)
     if doc_answered and doc_answer:
+        logger.info("ChembaBot: answered from taarifa.md (no need for website)")
         return doc_answer, True
+    logger.info("ChembaBot: taarifa.md had no answer, moving to official website / .go.tz logic")
 
     # Step 2: fall back to AI with instructions to rely on official sources only
     system_msg = (
@@ -388,6 +405,7 @@ def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optiona
     # Fetch official Chemba DC website content (secondary source)
     site_text = _fetch_chembadc_text()
     if site_text:
+        logger.info("ChembaBot: including chembadc.go.tz text in OpenAI prompt")
         user_content = (
             "Hii ni nukuu ya ukurasa wa tovuti rasmi ya Halmashauri ya Wilaya ya Chemba "
             "(https://chembadc.go.tz/):\n\n"
@@ -399,8 +417,10 @@ def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optiona
         )
     else:
         # If website content is not reachable, fall back to using only model's knowledge of official sources
+        logger.warning("ChembaBot: chembadc.go.tz content not available; using model knowledge of official sources only")
         user_content = user_message
 
+    logger.info("ChembaBot: calling OpenAI with official-source rules")
     response = _call_openai_chat(
         [
             {"role": "system", "content": system_msg},
@@ -408,9 +428,12 @@ def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optiona
         ]
     )
     if not response:
+        logger.warning("ChembaBot: OpenAI returned no response for free-form official-source question")
         return None, False
     response_clean = response.strip()
     if response_clean == "Information not available in official sources.":
+        logger.info("ChembaBot: OpenAI reported 'Information not available in official sources.'")
         return None, False
+    logger.info("ChembaBot: OpenAI answered from official sources")
     return response_clean, True
 
