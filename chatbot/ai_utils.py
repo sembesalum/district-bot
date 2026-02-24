@@ -122,6 +122,45 @@ xx. Kitengo cha Ufuatiliaji na Tathimini: Kitengo hiki kina jukumu la kufuatilia
 • Uwepo wa maeneo yaliyotengwa kwa ajili ya Uwekezaji katika Mji wa Chemba, Paranga na Kambi ya Nyasa
 """
 
+TAARIFA_MD_SNIPPET2 = """
+1. Ngazi ya Uongozi (Uongozi wa sasa)
+• Mkuu wa Wilaya (District Commissioner – DC):Mhe. Halima Okash (pia anajulikana kama Halima Okas au @okash_halima). Amekuwa akionekana katika shughuli rasmi hadi Februari 2026 (pamoja na usimamizi wa uchaguzi na shughuli za usalama). Anasimamia utekelezaji wa sera za serikali na amani wilayani.
+• Katibu Tawala wa Wilaya (District Administrative Secretary – DAS):Bi. Sarah Ngalingasi. Anashughulikia masuala ya utawala na usimamizi wa mikutano wa halmashauri (k.m. kusoma matokeo ya uchaguzi wa mwenyekiti wa halmashauri hivi karibuni).
+• Mkurugenzi Mtendaji wa Halmashauri (District Executive Director – DED):Bw. Hassan Juma Mnyikah (pia anaitwa Hassan Mnyika au Ndg. Hassan Mnyikah). Ndiye msimamizi mkuu wa utendaji wa halmashauri. Hivi karibuni (Januari 29, 2026) amezindua kampeni ya upandaji miti, na Desemba 2025 alitoa salamu za Krismasi.
+• Mwenyekiti wa Halmashauri ya Wilaya:Bw. Raphael Lebba (kutokana na matangazo ya hivi karibuni ya shughuli za mafunzo na mikutano). (Kuna taarifa za awali za Erasto Mpete kurejea, lakini Raphael Lebba ndiye anayetajwa katika shughuli za sasa).
+Wakurugenzi wa Idara (Heads of Departments): Halmashauri ina idara kuu kama Elimu, Afya, Kilimo, Mipango na Fedha, Ujenzi, Mazingira n.k. Majina ya wakurugenzi maalum hayajaorodheshwa wazi katika vyanzo vya sasa vya umma (wanasimamiwa moja kwa moja na DED). Unaweza kupata orodha kamili kwa kuwasiliana na ofisi ya DED.
+Mawasiliano ya Ofisi Kuu ya Halmashauri:
+• Sanduku la Posta: 830, Chemba.
+• Simu: 026 236 0175 / Simu ya mkononi: 0765 980 765.
+• Barua pepe: ded@chembadc.go.tz
+• Tovuti rasmi: https://chembadc.go.tz/ (ina habari mpya, wasifu na matangazo).
+Mkuu wa Mkoa (kwa muktadha): Mhe. Rosemary Senyamule (anashirikiana na uongozi wa wilaya katika miradi ya mkoa).
+2. Taarifa Muhimu za Wilaya ya Chemba
+• Jiografia na Mahali: Wilaya ipo katikati mwa Tanzania, Mkoa wa Dodoma. Imeanzishwa rasmi Julai 2013 baada ya kugawanywa kutoka Wilaya ya Kondoa. Makao makuu yako kijiji cha Chemba. Inapakana na: Wilaya ya Kondoa (kaskazini), Mkoa wa Manyara (mashariki), Wilaya ya Chamwino na Bahi (kusini), na Mkoa wa Singida (magharibi). Umbali: Km 140 kaskazini mwa Dodoma mjini, na km 40 kusini mwa
+
+Kondoa. Barabara kuu T5 (Dodoma – Babati) inapita wilayani. Usafiri wa ndani mara nyingi hutumia punda. Eneo ni la nusu-kame (semi-arid), lenye changamoto za ukame na uhifadhi wa mazingira.
+• Ugatuzi wa Utawala:
+o Vitengo vya utawala (Divisions): 4 (Chemba, Kwamtoro, Mondo na nyingine). o Kata (Wards): 26.
+o Vijiji: 114.
+o Vitongoji (Hamlets): 494. (Idadi iliongezeka kutoka miaka ya awali).
+• Idadi ya Wakazi (Population):
+o Sensa ya Taifa 2022: 339,333 (wanaume 170,837; wanawake 168,496; wastani
+wa kaya 4.5).
+o Sensa ya 2012: 235,711 (uongozi wa wastani wa ukuaji ~1.7% kwa mwaka).
+Wilaya ina jimbo moja la uchaguzi (Chemba).
+• Uchumi na Shughuli Kuu: Kilimo (mazao ya nafaka, mboga) na ufugaji ndio mhimili
+mkuu wa uchumi. Kuna migogoro ya mara kwa mara kati ya wafugaji na wakulima kuhusu ardhi (hasa maeneo ya Kwamtoro). Serikali inahamasisha uhifadhi wa misitu na upandaji miti (kampeni inaendelea). Miradi mingine: Ujenzi wa vituo vya afya, shule, na barabara. Wilaya inashiriki katika maonesho ya kilimo na uvuvi wa mkoa.
+• Huduma za Msingi na Maendeleo:
+o Afya: Vituo vya afya na zahanati (takwimu za kina zinapatikana ofisini).
+o Elimu: Shule za msingi na sekondari; DED amewahamasisha walimu mara kwa
+mara.
+o Mazingira: Kampeni za kutunza misitu na kupanda miti zinaendelea (mfano
+Januari 2026). Wilaya inashiriki kikamilifu katika uchaguzi wa serikali za mitaa
+na taifa (Oktoba 2025 ilisimamiwa vizuri na DC).
+• Changamoto Kuuzo: Ukame, migogoro ya ardhi, na uhifadhi wa wanyamapori (k.m.
+eneo la Swagaswaga Game Reserve lililokaribu). Serikali inafanya utafiti na hatua za kushughulikia (k.m. agizo la Balozi Dkt. Emmanuel Nchimbi Februari 2026).
+"""
+
 
 def _load_taarifa_text() -> str:
     """
@@ -139,8 +178,8 @@ def _load_taarifa_text() -> str:
     return ""
 
 
-# Use only the embedded taarifa snippet for AI answers (no runtime file dependency)
-TAARIFA_TEXT: str = TAARIFA_MD_SNIPPET
+# Use the embedded taarifa snippets for AI answers (no runtime file dependency)
+TAARIFA_TEXT: str = TAARIFA_MD_SNIPPET + "\n\n" + TAARIFA_MD_SNIPPET2
 
 
 def _call_openai_chat(messages: list[dict]) -> Optional[str]:
@@ -283,8 +322,11 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
 
 def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optional[str], bool]:
     """
-    Answer the user's free-form question using AI only (no web search).
-    AI answers in Kiswahili, about Tanzania only. Returns (answer_text, True) or (None, False).
+    Answer the user's free-form question with strict official-source priority:
+    1) TAARIFA_MD_SNIPPET2 + TAARIFA_MD_SNIPPET (local official document)
+    2) Chemba DC official website / other official knowledge (AI, instructed to use chembadc.go.tz and .go.tz only)
+
+    Returns (answer_text, True) or (None, False) if no official answer is available.
     """
     user_message = (user_message or "").strip()
     if not user_message:
@@ -292,11 +334,22 @@ def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optiona
     if not OPENAI_API_KEY:
         return None, False
 
+    # Step 1: try to answer from local taarifa snippets only
+    doc_answer, doc_answered = answer_freeform_question(user_message, lang)
+    if doc_answered and doc_answer:
+        return doc_answer, True
+
+    # Step 2: fall back to AI with instructions to rely on official sources only
     system_msg = (
-        "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba, Tanzania. "
-        "Kazi yako: jibu swali la mtumiaji kwa KISWAHILI tu, kuhusu TANZANIA tu (mahali, serikali, wilaya, mikoa, huduma, n.k.). "
-        "Jibu kwa ufupi, inayofaa kwa WhatsApp. Tumia ujuzi wako wa kawaida kuhusu Tanzania. "
-        "Ikiwa swali halihusiani na Tanzania au huwezi kujibu kwa uhakika, andika NO_ANSWER tu."
+        "You are a professional AI Assistant for Chemba District Council in Tanzania. "
+        "Your role is to provide accurate, official, and helpful information to citizens. "
+        "When answering any free-form user question, you MUST follow this strict information priority order:\n"
+        "1) Primary source: the local Chemba document (taarifa.md snippets) which has already been checked.\n"
+        "2) Secondary source: the official Chemba District website (https://chembadc.go.tz/).\n"
+        "3) Tertiary source: other official Tanzanian Government websites with domain .go.tz.\n"
+        "Rules: Always prioritise sources in this exact order. Do NOT use non-government websites. "
+        "Do NOT generate speculative or unverified information. If information is not available from these official "
+        "sources, reply with exactly: Information not available in official sources."
     )
     response = _call_openai_chat(
         [
@@ -307,7 +360,7 @@ def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optiona
     if not response:
         return None, False
     response_clean = response.strip()
-    if response_clean.upper() == NO_ANSWER_MARKER:
+    if response_clean == "Information not available in official sources.":
         return None, False
     return response_clean, True
 
