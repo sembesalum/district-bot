@@ -168,6 +168,150 @@ eneo la Swagaswaga Game Reserve lililokaribu). Serikali inafanya utafiti na hatu
 """
 
 
+TAARIFA_MD_SNIPPET3 = """
+1.1 Utangulizi
+1.1.2 Eneo la Kiutawala
+Wilaya ya Chemba ni miongoni mwa Wilaya 7 za Mkoa wa Dodoma yenye ukubwa wa kilomita za mraba 7,653 ambalo ni sawa na asilimia 18.5 ya eneo lote la Mkoa wa Dodoma. Wilaya ya Chemba kwa kulinganisha na Wilaya zingine za ndani ya Mkoa wa Dodoma ni changa ambayo imeanza mwezi Julai 2012 baada ya Tangazo la Mhehimiwa Rais wa Jamhuri ya Muungano wa Tanzania Dkt. Jakaya Mrisho Kikwete. Wilaya ipo umbali wa Kilometa 110 kutoka Dodoma mjini ambapo ndio Makao Makuu ya Mkoa na Nchi yetu, katika Latitude 4°12’ mpaka 5°38’ kusini na  longitudo 35°06’ mpaka 36°02’ Mashariki. Wilaya ya Chemba ina jimbo moja (01) la uchaguzi ambayo ni Chemba, Halmashauri moja (01) ya Wilaya Chemba. Tarafa nne (4) ambazo ni Goima, Mondo, Farkwa na Kwamtoro, Kata ishirini na sita (26) ambazo ni Chemba, Kidoka, Soya, Chandama, Kimaha, Mrijo, Songolo, Msaada, Goima, Mondo, Paranga, Churuku, Jangalo, Dalai, Farkwa, Makorongo, Gwandi, Tumbakose, Babayu, Kwamtoro, Lahoda, Lalta, Ovada, Kinyamsindo, Sanzawa na Mpendo. Vijiji mia moja kumi na nne (114) na Vitongoji mia nne themanini na nane (488).
+
+1.1.3 Uongozi
+Wilaya ya Chemba inaongozwa na Mkuu wa Wilaya anaitwa Halima Okash, Mkurugenzi Mtendaji wa Halmashauri Hassan Mnyika na Mbunge wa Jimbo ni Kunti Majala.
+
+1.1.4 Idadi ya watu
+Kwa mujibu wa Sensa ya watu na Makazi ya mwaka 2022, Wilaya ya Chemba ina jumla ya watu laki tatu thelethini na tisa elfu mia tatu thelathini na tatu (339,333), kati yao laki moja na elfu sabini mia nane thelathini na saba (170,837) ni wanaume na laki moja sitini na nane elfu mia nne tisini na sita (168,496) ni wanawake.
+
+1.1.5 Jiografia na mipaka ya Wilaya
+Wilaya ya Chemba kwa upande wa kaskazini imepakana na Wilaya ya Kondoa, Mashariki imepakana na Wilaya ya Kiteto, Kusini imepakana na Wilaya ya Bahi, Kusini Mashariki imepakana na Wilaya ya Chamwino, Magharibi imepakana na Wilaya ya Manyoni na Wilaya ya Singida na Kaskazini Magharibi imepakana na Wilaya ya Hanang.
+
+1.1.6 Hali ya Kisiasa
+Hali ya kisiasa kwa ujumla katika Wilaya ya Chemba ni shwari. Kwa mujibu wa Uchaguzi Mkuu wa Oktoba, 2025. Chama Cha Mapinduzi (CCM) kimeshinda kwa asilimia 99.6 kwa Kiti cha Urais na asilimia 96.5 kwa kiti cha Mbunge na madiwani wote wa Kata wanatokana na Chama Cha Mapinduzi (CCM). Aidha vyama vyote vya kisiasa vinaendelea na shughuli zake za kawaida za kila siku ikiwa ni pamoja na vikao mbalimbali vya Vyama, vikao vya Madiwani, ziara za Mbunge kwa maeneo mbalimbali ndani ya jimbo na ukaguzi wa miradi ya maendeleo. Aidha, vyama vyote vya kisiasa vinashirikiana kwa ukaribu na Serikali, katika mustakabali wa Maendeleo ya Wilaya.
+
+1.1.7 Uchumi wa Wilaya
+Uchumi wa Wilaya hii hutegemea zaidi kilimo na mifugo. Wakazi wote wa wilaya hii hupata pato lao kutokana na shughuli za kilimo na ufugaji, hivyo mapato katika Wilaya hii hutegemea zaidi sekta hizo.
+
+1.1.8 Hali ya Hewa
+Wilaya ya Chemba ina mwinuko wa Mita 1,200 hadi 1,500 kutoka usawa wa bahari. Wilaya ina wastani wa nyuzi joto 15–30°C. Mvua ni za msimu mmoja kwa mwaka ambazo ni za wastani wa kiasi cha Milimita 500–800 ambazo hunyesha kuanzia mwezi Desemba hadi Machi/Aprili.
+
+1.1.9 Dira
+Kuwa Wilaya yenye utawala bora inayotoa huduma zenye ubora wa hali ya juu, inayochochea ukuaji endelevu wa uchumi na maendeleo jumuishi kwa wakazi wote.
+
+1.1.20 Dhima
+Kutengeneza mazingira wezeshi ya Maendeleo ili kutoa huduma bora kwa wananchi na kuondoa umaskini.
+
+2.1.1 Muhtasari wa utekelezaji wa Shughuli za Maendeleo
+Wilaya ya Chemba inatekeleza shughuli zake kwa kuzingatia maelekezo na ahadi zilizomo katika Ilani ya Uchaguzi ya Chama Cha Mapinduzi (CCM) ya Mwaka 2025–2030, ambayo imegusa mambo makubwa yafuatayo:-
+I. Kuimarisha Uchumi
+II. Kuboresha maisha ya watu na ustawi wa jamii
+III. Kuwawezesha wananchi kuongeza kipato
+IV. Kuimarisha Miundombinu ya Kisasa ya Usafiri na Usafirishaji
+V. Kulinda na kuimarisha amani, utulivu na usalama wa nchi
+
+2.1: Wilaya kupitia Halmashauri imetekeleza majukumu yake kupitia Idara na vitengo vyake ambavyo ni; Idara ya Mipango na Uratibu, Idara ya Elimu Msingi na Sekondari, Idara ya Maendeleo ya Jamii, Idara ya Utawala na Utumishi, Idara ya Afya na Ustawi wa Jamii, Idara ya Ardhi, Idara ya Elimu Msingi, Idara ya Kilimo, Mifugo na Uvuvi, Idara ya Viwanda, Biashara na Uwekezaji, Idara ya Fedha, Kitengo cha Usimamizi wa Taka na Usafi wa Mazingira, Kitengo cha Maliasili na Hifadhi ya Mazingira, Kitengo cha TEHAMA, Kitengo cha Manunuzi na Kitengo cha Sheria.
+
+Kupitia Serikali ya awamu ya sita inayoongozwa na Mheshimiwa Dkt. Samia Suluhu Hassan, Rais wa Jamhuri ya Muungano wa Tanzania jumla ya Shilingi 9,892,273,726.75 kwa kipindi cha Mwaka 2025/26 zimetolewa katika Wilaya ya Chemba kwa ajili ya kuwezesha utekelezaji wa miradi mbalimbali. Fedha hizi zimeelekezwa katika Halmashauri, TANESCO, TARURA, na RUWASA. Utekelezaji wa huu umezingatia Dira ya Taifa ya Maendeleo ya Mwaka 2025, Mpango wa tatu wa maendeleo wa Taifa 2021/22 – 2025/26, Malengo ya Maendeleo Endelevu (SDGs) na maelekezo ya Viongozi wa Kitaifa. Katika kipindi chote Wilaya imeendelea kuimarisha utawala bora, miundombinu ya barabara na umeme, huduma za kiuchumi na kijamii pamoja na kuhamasisha uwekezaji.
+
+2.1.2 Elimu ya Msingi
+Wilaya ya Chemba ina jumla ya shule 118, kati ya hizo shule 113 zinamilikiwa na Serikali na shule 5 zinamilikiwa na watu/ taasisi binafsi. Shule hizo zina walimu 878 (Me 565, Ke 313), na wanafunzi wa darasa la Awali hadi la saba ni 74,818.
+
+2.1.3 Elimu Sekondari
+Wilaya ya Chemba ina jumla ya shule 31 za Sekondari, ambapo shule 1 inamilikiwa na Kanisa la KKT na shule 30 zinamilikiwa na serikali. Kati ya hizo shule 3 ni za kidato cha Kwanza hadi cha Sita ambazo ni Msakwalo, Mondo na Soya. Mafanikio yaliyopatikana kutokana na utekelezaji huu katika sekta ya elimu ni ujenzi wa vyumba vya madarasa ambao umesaidia kupunguza msongamano wa wanafunzi madarasani na kuhakikisha wanafunzi wote waliofaulu darasa la saba Mwaka 2025 wanapata nafasi ya kujiunga na kidato cha kwanza Mwaka 2026, ujenzi wa shule mpya za msingi na sekondari ambao umesaidia kupunguza umbali wa kufuata huduma za elimu.
+
+2.1.4 Sekta ya Afya
+Wilaya ya Chemba ina jumla ya vituo vya kutolea huduma za afya 53, kati ya vituo hivyo 50 vinamilikiwa na Serikali na vituo 3 vinamilikiwa na watu na mashirika ya dini. Kati ya hivyo 1 ni Hospitali ya Wilaya, 6 ni vituo vya afya na 43 ni zahanati. Vituo hivi vinahudumiwa na watumishi wapatao 254 wa serikali wa kada mbalimbali na watumishi 23 wanaofanya kazi chini ya mashirika yasiyo ya kiserikali. Katika sekta ya afya, ujenzi wa zahanati, ujenzi wa vituo vya afya pamoja na ununuzi wa dawa na vifaa tiba umesaidia kuboresha huduma za afya katika Wilaya na kupunguza vifo vya watoto na akina mama wajawazito.
+
+Huduma zinazopatikana kwenye Hospitali ya Wilaya ya Chemba:
+• Huduma za wagonjwa wa nje
+• Upasuaji mdogo
+• Upasuaji mkubwa
+• Huduma ya kinywa na meno
+• Huduma ya macho
+• Huduma ya wagonjwa wanaoishi na VVU/UKIMWI
+• Huduma za kifua kikuu
+• Huduma za maabara
+• Huduma za Radiologia
+• Huduma za mama wajawazito na watoto chini ya miaka mitano
+• Huduma za kulaza wagonjwa
+• Huduma za kuhifadhi maiti
+
+Huduma zinazopatikana kwenye Vituo vya Afya:
+• Huduma za matibabu ya wagonjwa wa nje
+• Huduma za maabara
+• Huduma za wanaoishi na virusi vya Ukimwi na kifua kikuu
+• Huduma za mama na mtoto
+• Huduma za macho
+• Huduma za kuhifadhi maiti
+• Huduma za upasuaji wa dharura kwa akina mama walioshindwa kujifungua kwa njia ya kawaida
+• Huduma ya upasuaji mdogo
+
+Huduma zinazopatikana kwenye Zahanati:
+• Huduma za wagonjwa wa nje
+• Huduma za mama na mtoto
+• Huduma za kuzalisha akina mama wajawazito
+• Huduma za uzazi wa mpango
+
+2.1.5 Maliasili na Mazingira
+Wilaya ya Chemba inatekeleza shughuli za Maliasili ikijumuisha misitu, nyuki, wanyamapori, malikale na mazingira kwa kutoa elimu kwa jamii juu ya uhifadhi na matumizi endelevu ya rasilimali za misitu, wanyamapori na nyuki; kutekeleza sera na sheria za misitu, nyuki, mazingira na wanyamapori; kutoa elimu juu ya kukabiliana na wanyama wakali na waharibifu; kudhibiti uvunaji na usafirishaji haramu wa mazao ya misitu; kutoa elimu juu ya ufugaji bora wa nyuki; kusimamia na kukusanya mapato yatokanayo na mazao ya maliasili; kupanda miti katika maeneo ya taasisi za serikali za kidini, mashirika yasiyo ya kiserikali, vikundi na watu binafsi; kusimamia maeneo ya utalii; kutoa elimu juu ya kukabiliana na athari za mabadiliko ya tabianchi pamoja na kutafuta suluhisho za changamoto mbalimbali zinazoikabili sekta ya maliasili.
+
+2.1.6 Kilimo na Mifugo
+Wakazi wengi wa Wilaya ya Chemba wanajishughulisha zaidi na sekta ya kilimo na mifugo kama shughuli kuu za kiuchumi. Eneo linalofaa kwa kilimo linakadiriwa kuwa na takribani hektare 480,000 na linalotumika kwa kilimo kwa sasa ni hektare 148,000 na idadi ya kaya zinazo jishughulisha na kilimo ni 75,050. Wananchi wa Chemba wanafuga mifugo ya kujiongezea kipato ambayo jumla yake ni 1,149,892.
+
+Mazao yanayopatikana Chemba:
+Mahindi, Alizeti, Ufuta, Mbaazi, Mpunga, Mtama, Ulezi, Dengu, Pamba, Choroko, Viazi vitamu na Mihogo.
+
+Msimu wa Kilimo:
+Novemba hadi Aprili.
+- Novemba – Desemba: Mazao yanayolimwa ni Mahindi, Mtama, Uwele, Ulezi, Ufuta, Mbaazi, Pamba na Mpunga.
+- Januari – Februari: Mazao yanayolimwa ni Alizeti, Viazi Vitamu, Mihogo na Choroko.
+- Machi – Aprili: Mazao yanayolimwa ni Dengu tu.
+
+Mifugo inayopatikana Chemba kwa mujibu wa sensa ya mifugo ya mwaka 2022 ni kama ifuatavyo:
+• Ng'ombe – 530,999
+• Mbuzi – 352,445
+• Kondoo – 57,445
+• Punda – 12,933
+• Kuku – 386,094
+• Bata – 118,234
+• Mbwa – 32,943
+• Paka – 612
+
+1. Minada na tarehe zinazofanyika kwenye kata:
+NA  KATA        TAREHE YA MNADA
+1   SOYA        KILA JUMAPILI
+2   GWANDI      14 NA 25 KILA MWEZI
+3   LAHODA      16 KILA MWEZI
+4   MPENDO      17 KILA MWEZI
+5   SANZAWA     18 KILA MWEZI
+6   KINYAMSINDO 19 KILA MWEZI
+7   LALTA       20 KILA MWEZI
+8   KWAMTORO    1 NA 21 KILA MWEZI
+9   FARKWA      22 KILA MWEZI
+10  MAKORONGO   2 NA 23 KILA MWEZI
+11  BABAYU      24 KILA MWEZI
+12  MONDO       12 KILA MWEZI
+13  PARANGA     3 KILA MWEZI
+14  KIDOKA      29 KILA MWEZI
+
+2.1.7 Sekta ya Miundombinu ya Barabara (TARURA)
+TARURA inasimamia miradi ya mtandao wa barabara wenye kilomita 979.83 kwa mijini na vijijini na ukaguzi wa madaraja. Katika kipindi cha mwaka 2025/2026 miradi 4 yenye thamani ya shilingi milioni 999.6 inaendelea kutekelezwa ikiwa na wastani wa 60% ya utekelezaji.
+
+2.1.8 Sekta ya Miundombinu ya Maji (RUWASA)
+Wilaya ya Chemba kwa mwaka wa fedha 2025/2026 Wakala wa Maji na Usafi wa Mazingira Vijijini (RUWASA) imetekeleza miradi 12 yenye gharama za TZS 2,546,091,813.9, na uimarishaji wa utoaji huduma ya maji ngazi ya jamii (CBWSO’s) katika Tarafa 4 za Wilaya ya Chemba. Katika utekelezaji wa miradi ya maji kwa mwaka wa fedha 2025/2026 Wilaya ya Chemba imeendelea kutekeleza miradi hii na iko katika hatua mbalimbali za utekelezaji; mingine iko hatua ya manunuzi na mingine iko hatua ya utekelezaji.
+
+2.1.9 Sekta ya Nishati
+TANESCO Wilaya ya Chemba inatoa huduma ya usambazaji wa umeme vijijini na mijini ambapo wananchi zaidi ya 23,300 wameunganishiwa umeme. Katika kipindi cha mwaka wa fedha 2025/26 imetekelezwa miradi ya thamani ya shilingi bilioni 48.2.
+
+3.0.1 Fursa za uwekezaji
+• Shamba la BBT katika eneo la Gwandi lenye ukubwa wa ekari 3,420
+• Eneo la viwanda lenye ukubwa wa ekari 79.14 ambalo linapatikana Kitongoji cha Aliso Chemba mjini
+• Ujenzi wa stendi ukikamilika kutakuwepo na vibanda zaidi ya 40 kwa ajili ya wafanyabiashara wa kati na wadogo
+• Eneo la masoko lenye ukubwa wa ekari 15
+• Uwepo wa minada 17 na magulio 32
+• Huduma ya usafirishaji wa ndani na nje
+• Eneo la uchimbaji madini aina ya quartz kata ya Mondo
+• Uwekezaji wa majengo kwa ajili ya biashara
+• Maeneo yaliyotengwa kwa ajili ya uwekezaji wa shule binafsi, ujenzi wa malls, hoteli, lodges, hospitali binafsi n.k.
+"""
+
+
 def _load_taarifa_text() -> str:
     """
     Load taarifa.md from the project root (one level above BASE_DIR).
@@ -185,7 +329,13 @@ def _load_taarifa_text() -> str:
 
 
 # Use the embedded taarifa snippets for AI answers (no runtime file dependency)
-TAARIFA_TEXT: str = TAARIFA_MD_SNIPPET + "\n\n" + TAARIFA_MD_SNIPPET2
+TAARIFA_TEXT: str = (
+    TAARIFA_MD_SNIPPET
+    + "\n\n"
+    + TAARIFA_MD_SNIPPET2
+    + "\n\n"
+    + TAARIFA_MD_SNIPPET3
+)
 
 
 CHEMBADC_URL = "https://chembadc.go.tz/"
