@@ -1,4 +1,4 @@
-# chatbot/api_views.py – REST API for swali (questions) with API key auth
+# chatbot/api_views.py – REST API for swali and malalamiko (no auth)
 import json
 import random
 import string
@@ -6,32 +6,8 @@ import string
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.conf import settings
 
 from .models import Ticket
-
-
-def _get_api_key():
-    return getattr(settings, "SWALI_API_KEY", None) or getattr(settings, "API_KEY", None)
-
-
-def _require_api_key(view_func):
-    """Decorator: require valid API key in Authorization: Bearer <key> or X-API-Key: <key>."""
-    def wrapped(request, *args, **kwargs):
-        api_key = _get_api_key()
-        if not api_key:
-            return JsonResponse({"error": "API key not configured"}, status=500)
-        auth_header = request.headers.get("Authorization", "")
-        header_key = request.headers.get("X-API-Key", "")
-        token = None
-        if auth_header.startswith("Bearer "):
-            token = auth_header[7:].strip()
-        elif header_key:
-            token = header_key.strip()
-        if not token or token != api_key:
-            return JsonResponse({"error": "Invalid or missing API key"}, status=401)
-        return view_func(request, *args, **kwargs)
-    return wrapped
 
 
 def _generate_ticket_id():
@@ -69,11 +45,11 @@ def api_submit_swali(request):
     }, status=201)
 
 
-@require_http_methods(["GET"])
-@_require_api_key
+@csrf_exempt
+@require_http_methods(["POST"])
 def api_get_swali_answer(request, question_id):
     """
-    GET /api/swali/<question_id>/
+    POST /api/swali/<question_id>/
     Returns question, status, and answer from dashboard admin only. No AI / no internet.
     """
     ticket = Ticket.objects.filter(
@@ -96,7 +72,6 @@ def api_get_swali_answer(request, question_id):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-@_require_api_key
 def api_submit_malalamiko(request):
     """
     POST /api/malalamiko/
@@ -128,11 +103,11 @@ def api_submit_malalamiko(request):
     }, status=201)
 
 
-@require_http_methods(["GET"])
-@_require_api_key
+@csrf_exempt
+@require_http_methods(["POST"])
 def api_get_malalamiko(request, malalamiko_id):
     """
-    GET /api/malalamiko/<malalamiko_id>/
+    POST /api/malalamiko/<malalamiko_id>/
     Returns status and answer (feedback) from dashboard admin only. No AI / no internet.
     """
     ticket = Ticket.objects.filter(
