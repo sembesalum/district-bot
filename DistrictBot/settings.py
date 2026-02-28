@@ -28,9 +28,6 @@ SUPPORT_PHONE = "255 000 000 000"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 
-# API key for swali endpoints (Authorization: Bearer <key> or X-API-Key: <key>)
-SWALI_API_KEY = "jcBQgM8GbbZAGnZCBeroyFeXc54w2ZAXGVggZBsb"
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Logo image URL sent with welcome message
