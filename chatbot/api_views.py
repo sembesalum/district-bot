@@ -16,7 +16,6 @@ def _generate_ticket_id():
 
 @csrf_exempt
 @require_http_methods(["POST"])
-@_require_api_key
 def api_submit_swali(request):
     """
     POST /api/swali/
