@@ -9,7 +9,6 @@ from django.views.decorators.http import require_http_methods
 from django.conf import settings
 
 from .models import Ticket
-from .ai_utils import answer_from_web_search
 
 
 def _get_api_key():
@@ -75,8 +74,7 @@ def api_submit_swali(request):
 def api_get_swali_answer(request, question_id):
     """
     GET /api/swali/<question_id>/
-    Returns: { "question_id": "...", "question": "...", "answer": "...", "status": "answered" }
-    If no answer yet, generates one via AI and saves it.
+    Returns question, status, and answer from dashboard admin only. No AI / no internet.
     """
     ticket = Ticket.objects.filter(
         ticket_id=question_id,
@@ -84,23 +82,71 @@ def api_get_swali_answer(request, question_id):
     ).first()
     if not ticket:
         return JsonResponse({"error": "Question not found"}, status=404)
-    question = ticket.message
-    answer = (ticket.feedback or "").strip()
-    if not answer:
-        answer_text, answered = answer_from_web_search(question, "sw")
-        if answered and answer_text:
-            ticket.feedback = answer_text
-            ticket.status = Ticket.STATUS_ANSWERED
-            ticket.save()
-            answer = answer_text
-        else:
-            answer = "Samahani, hatuna jibu la swali hili kwenye vyanzo rasmi vilivyopatikana."
-            ticket.feedback = answer
-            ticket.status = Ticket.STATUS_ANSWERED
-            ticket.save()
     return JsonResponse({
         "question_id": ticket.ticket_id,
-        "question": question,
-        "answer": answer,
-        "status": "answered",
+        "question": ticket.message,
+        "answer": (ticket.feedback or "").strip(),
+        "status": ticket.status,
+        "created_at": ticket.created_at.isoformat(),
+        "updated_at": ticket.updated_at.isoformat(),
+    })
+
+
+# ----- Malalamiko (complaints: submit, get status + answer from dashboard admin only, no AI) -----
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@_require_api_key
+def api_submit_malalamiko(request):
+    """
+    POST /api/malalamiko/
+    Body: { "message": "string", "department": "string" (optional) }
+    Returns: { "malalamiko_id": "...", "message": "...", "status": "submitted" }
+    """
+    try:
+        body = json.loads(request.body) if request.body else {}
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON body"}, status=400)
+    message = (body.get("message") or "").strip()
+    if not message:
+        return JsonResponse({"error": "message is required"}, status=400)
+    department = (body.get("department") or "").strip()
+    ticket_id = _generate_ticket_id()
+    Ticket.objects.create(
+        phone_number="api",
+        ticket_type=Ticket.TYPE_COMPLAINT,
+        ticket_id=ticket_id,
+        message=message,
+        status=Ticket.STATUS_RECEIVED,
+        department=department,
+    )
+    return JsonResponse({
+        "malalamiko_id": ticket_id,
+        "message": message,
+        "department": department or None,
+        "status": "submitted",
+    }, status=201)
+
+
+@require_http_methods(["GET"])
+@_require_api_key
+def api_get_malalamiko(request, malalamiko_id):
+    """
+    GET /api/malalamiko/<malalamiko_id>/
+    Returns status and answer (feedback) from dashboard admin only. No AI / no internet.
+    """
+    ticket = Ticket.objects.filter(
+        ticket_id=malalamiko_id,
+        ticket_type=Ticket.TYPE_COMPLAINT,
+    ).first()
+    if not ticket:
+        return JsonResponse({"error": "Malalamiko not found"}, status=404)
+    return JsonResponse({
+        "malalamiko_id": ticket.ticket_id,
+        "message": ticket.message,
+        "department": ticket.department or "",
+        "status": ticket.status,
+        "answer": (ticket.feedback or "").strip(),
+        "created_at": ticket.created_at.isoformat(),
+        "updated_at": ticket.updated_at.isoformat(),
     })
