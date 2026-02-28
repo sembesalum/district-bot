@@ -17,9 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from chatbot.views import webhook
+from chatbot.api_views import api_submit_swali, api_get_swali_answer
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("webhook/", webhook, name="webhook"),
     path("dashboard/", include("chatbot.urls")),
+    path("api/swali/", api_submit_swali),
+    path("api/swali/<str:question_id>/", api_get_swali_answer),
 ]
