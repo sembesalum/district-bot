@@ -11,7 +11,7 @@ from django.conf import settings
 from .ai_utils import rewrite_info_answer, answer_from_web_search
 
 # Common footer line used on AI-formatted informational replies
-FOOTER_LINE = "👉 Unaweza uliza swali lingine au Jibu # kuanza upya."
+FOOTER_LINE = "Kama una swali jingine, karibu nikuhudumie au jibu # kama unahitaji kuanza upya 🙏🏽"
 
 # ---- States ----
 WELCOME = "welcome"
@@ -554,7 +554,7 @@ def process_message(session_state, session_context, session_language, user_messa
                 "Fursa za uwekezaji zipo katika maeneo yaliyotengwa Mji wa Chemba, Paranga na Kambi ya Nyasa, yenye miundombinu ya umeme, barabara na mawasiliano.\n\n"
                 "12. Sekta ya kilimo na mifugo ina mchango gani kwa Wilaya?\n"
                 "Takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara. Huduma za ugani, mifugo na chanjo zinatolewa ili kuongeza uzalishaji na kipato cha wananchi.\n\n"
-                "👉 Unaweza uliza swali lingine au Jibu # kuanza upya."
+                "Kama una swali jingine, karibu nikuhudumie au jibu # kama unahitaji kuanza upya 🙏🏽"
             )
             next_state = MAIN_MENU
         elif msg == "6":
