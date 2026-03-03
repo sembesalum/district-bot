@@ -56,7 +56,14 @@ def _dept_list(with_other=True):
 
 
 def _t(lang, en, sw):
-    """Always return Kiswahili (English removed)."""
+    """
+    Simple i18n helper.
+    - If lang is 'en', return the English string.
+    - Otherwise return the Kiswahili string (default).
+    """
+    lang_code = (lang or "").lower()
+    if lang_code.startswith("en"):
+        return en
     return sw
 
 
@@ -262,14 +269,32 @@ def _validate_phone(text):
 
 def get_main_menu(lang="sw", name=None):
     """
-    Main menu text. Optional name for personalisation: "Habari, {name}" when provided.
-    NOTE: For now we only use Kiswahili as the active language.
+    Main menu text. Optional name for personalisation.
+    Default language is Kiswahili; English supported via `lang='en'`.
     """
     name_clean = (name or "").strip()
-    greeting = "Habari, " + name_clean + "\n" if name_clean else "Habari,\n"
-    return (
-        greeting
-        + "Karibu Wilaya ya Chemba!\n\n"
+    greeting_en = "Hello, " + name_clean + "\n" if name_clean else "Hello,\n"
+    greeting_sw = "Habari, " + name_clean + "\n" if name_clean else "Habari,\n"
+
+    body_en = (
+        "Welcome to Chemba District Council!\n\n"
+        "I am here to help you with information about services, departments and opportunities "
+        "available in Chemba District.\n"
+        "👉 Please choose the area you want information about:\n\n"
+        "1️⃣ District introduction\n"
+        "2️⃣ Government institutions available in Chemba District\n"
+        "3️⃣ District Council (Departments & Units)\n"
+        "4️⃣ Opportunities available in the District\n"
+        "5️⃣ Quick Questions (FAQ)\n"
+        "6️⃣ Check Application Status\n"
+        "7️⃣ Submit Complaint\n"
+        "8️⃣ Track My Complaints/Questions\n"
+        "9️⃣ Change language / Badilisha lugha\n\n"
+        "🔁 Reply # to start again at any time."
+    )
+
+    body_sw = (
+        "Karibu Halmashauri ya Wilaya ya Chemba!\n\n"
         "Nipo hapa kukuhudumia na kukupa taarifa zaidi kuhusu huduma, idara na fursa "
         "zinazopatikana katika Wilaya yetu ya Chemba.\n"
         "👉 Tafadhali chagua eneo unalotaka kupata taarifa:\n\n"
@@ -280,9 +305,14 @@ def get_main_menu(lang="sw", name=None):
         "5️⃣ Maswali ya Haraka\n"
         "6️⃣ Angalia Hali ya Maombi\n"
         "7️⃣ Wasilisha Malalamiko\n"
-        "8️⃣ Fuatilia Malalamiko/Maswali Yangu\n\n"
+        "8️⃣ Fuatilia Malalamiko/Maswali Yangu\n"
+        "9️⃣ Badilisha lugha / Change language\n\n"
         "🔁 Jibu # kuanza upya wakati wowote."
     )
+
+    greeting = _t(lang, greeting_en, greeting_sw)
+    body = _t(lang, body_en, body_sw)
+    return greeting + body
 
 
 def get_welcome_message(lang="sw", name=None):
@@ -557,7 +587,15 @@ def process_message(session_state, session_context, session_language, user_messa
                 "Takribani 85% ya wananchi wanajihusisha na kilimo cha mazao ya chakula na biashara. Huduma za ugani, mifugo na chanjo zinatolewa ili kuongeza uzalishaji na kipato cha wananchi.\n\n"
                 "Kama una swali jingine, karibu nikuhudumie au jibu # kama unahitaji kuanza upya 🙏🏽"
             )
-            next_state = MAIN_MENU
+        elif msg == "9":
+            # Change language: go to LANGUAGE_CHOICE state
+            next_state = LANGUAGE_CHOICE
+            lang = session_language or "sw"
+            reply = _t(
+                lang,
+                "Please choose language:\n1️⃣ Kiswahili\n2️⃣ English",
+                "Chagua lugha:\n1️⃣ Kiswahili\n2️⃣ English",
+            )
         elif msg == "6":
             # Angalia Hali ya Maombi (re-use existing check status flow)
             next_state = CHECK_DEPT

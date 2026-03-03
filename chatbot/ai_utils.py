@@ -475,8 +475,12 @@ def _call_openai_chat(messages: list[dict]) -> Optional[str]:
 def rewrite_info_answer(header: str, body: str, lang: str = "sw") -> str:
     """
     Rewrite taarifa / FAQ style answers so they sound more natural,
-    using taarifa.md as the source of truth. If OpenAI or taarifa.md
-    is not available, return the original header + body unchanged.
+    using taarifa.md as the source of truth, in the requested language.
+
+    - If lang is 'sw' (default): return Kiswahili.
+    - If lang is 'en': return English.
+
+    If OpenAI or taarifa.md is not available, return the original header + body unchanged.
 
     We preserve the header (e.g. "1️⃣ Utangulizi wa Wilaya...") so that
     any downstream logic that checks the prefix still works.
@@ -488,29 +492,48 @@ def rewrite_info_answer(header: str, body: str, lang: str = "sw") -> str:
     if not body.strip():
         return header
 
-    # Kiswahili only.
-    target_lang = "Kiswahili"
-
-    system_msg = (
-        "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba.\n"
-        "Kazi yako ni kuchukua taarifa rasmi na kuziandika upya kwa namna ya mazungumzo ya binadamu "
-        "kupitia WhatsApp.\n"
-        "Usibadilishe ukweli wa taarifa, usiongeze mambo ambayo hayapo kwenye taarifa rasmi.\n"
-        "Tumia lugha rahisi, fupi, ya heshima, na pangilia aya vizuri."
-    )
-
-    user_msg = (
-        f"Lugha lengwa: {target_lang}\n\n"
-        f"Hii ni sehemu ya kichwa cha ujumbe (usiibadilishe):\n{header}\n\n"
-        "Huu hapa ni mwili wa ujumbe wa zamani ambao umeandikwa moja kwa moja kwenye mfumo:\n"
-        f"{body}\n\n"
-        "Na hii ni taarifa rasmi ya rejea kutoka kwenye hati ya taarifa ya Wilaya (taarifa.md):\n"
-        f"{TAARIFA_TEXT}\n\n"
-        "Tafadhali andika upya MWILI WA UJUMBE PEKEE (usirudie kichwa) kwa mtindo wa binadamu, "
-        "ukitumia lugha hiyo hiyo, na ukihakikisha taarifa zote muhimu bado zipo na zina uhalisia.\n"
-        "Tumia aya chache fupi; unaweza kuacha namba / orodha pale inapofaa.\n"
-        "Rudisha tu mwili mpya wa ujumbe bila kuongeza maelezo mengine."
-    )
+    lang_code = (lang or "").lower()
+    if lang_code.startswith("en"):
+        target_lang = "English"
+        system_msg = (
+            "You are an assistant for Chemba District Council in Tanzania.\n"
+            "Your job is to take official information and rewrite it into clear, friendly WhatsApp-style text.\n"
+            "Do not change the facts, and do not add any information that is not in the official text.\n"
+            "Use short, polite sentences and organise the content into a few readable paragraphs."
+        )
+        user_msg = (
+            f"Target language: {target_lang}\n\n"
+            f"This is the message header (KEEP IT UNCHANGED):\n{header}\n\n"
+            "This is the old body text currently used in the system:\n"
+            f"{body}\n\n"
+            "And this is the official reference document for Chemba District (taarifa.md):\n"
+            f"{TAARIFA_TEXT}\n\n"
+            "Please rewrite ONLY THE BODY of the message (do NOT repeat the header), in clear, natural English, "
+            "keeping all important facts accurate and consistent with the official document.\n"
+            "Use a few short paragraphs; you may keep bullet points or numbered lists where helpful.\n"
+            "Return only the new body text without any extra explanation."
+        )
+    else:
+        target_lang = "Kiswahili"
+        system_msg = (
+            "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba.\n"
+            "Kazi yako ni kuchukua taarifa rasmi na kuziandika upya kwa namna ya mazungumzo ya binadamu "
+            "kupitia WhatsApp.\n"
+            "Usibadilishe ukweli wa taarifa, usiongeze mambo ambayo hayapo kwenye taarifa rasmi.\n"
+            "Tumia lugha rahisi, fupi, ya heshima, na pangilia aya vizuri."
+        )
+        user_msg = (
+            f"Lugha lengwa: {target_lang}\n\n"
+            f"Hii ni sehemu ya kichwa cha ujumbe (usiibadilishe):\n{header}\n\n"
+            "Huu hapa ni mwili wa ujumbe wa zamani ambao umeandikwa moja kwa moja kwenye mfumo:\n"
+            f"{body}\n\n"
+            "Na hii ni taarifa rasmi ya rejea kutoka kwenye hati ya taarifa ya Wilaya (taarifa.md):\n"
+            f"{TAARIFA_TEXT}\n\n"
+            "Tafadhali andika upya MWILI WA UJUMBE PEKEE (usirudie kichwa) kwa mtindo wa binadamu, "
+            "ukitumia lugha hiyo hiyo, na ukihakikisha taarifa zote muhimu bado zipo na zina uhalisia.\n"
+            "Tumia aya chache fupi; unaweza kuacha namba / orodha pale inapofaa.\n"
+            "Rudisha tu mwili mpya wa ujumbe bila kuongeza maelezo mengine."
+        )
 
     new_body = _call_openai_chat(
         [
