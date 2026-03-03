@@ -390,13 +390,21 @@ def process_message(session_state, session_context, session_language, user_messa
     if any(phrase in msg_lower for phrase in COMPLAINT_PHRASES):
         next_state = SUBMIT_DEPT
         ctx.pop("submit_dept", None)
-        reply = (
+        lang = session_language or "sw"
+        reply = _t(
+            lang,
+            "Choose the department related to your complaint:\n"
+            "1️⃣ Land\n"
+            "2️⃣ Electricity\n"
+            "3️⃣ Health\n"
+            "4️⃣ Water\n"
+            "5️⃣ Business & Market",
             "Chagua idara inayohusika na malalamiko yako:\n"
             "1️⃣ Ardhi\n"
             "2️⃣ Umeme\n"
             "3️⃣ Afya\n"
             "4️⃣ Maji\n"
-            "5️⃣ Biashara na Soko"
+            "5️⃣ Biashara na Soko",
         )
         return next_state, ctx, reply
 
@@ -609,25 +617,40 @@ def process_message(session_state, session_context, session_language, user_messa
         elif msg == "6":
             # Angalia Hali ya Maombi (re-use existing check status flow)
             next_state = CHECK_DEPT
-            reply = (
+            reply = _t(
+                lang,
+                "Choose the department whose application status you want to check:\n"
+                "1️⃣ Land\n"
+                "2️⃣ Electricity\n"
+                "3️⃣ Health\n"
+                "4️⃣ Water\n"
+                "5️⃣ Business & Market\n"
+                "6️⃣ Other",
                 "Chagua idara unayotaka kuangalia hali ya maombi:\n"
                 "1️⃣ Ardhi (Ardhi)\n"
                 "2️⃣ Umeme\n"
                 "3️⃣ Afya\n"
                 "4️⃣ Maji\n"
                 "5️⃣ Biashara na Soko\n"
-                "6️⃣ Nyingine"
+                "6️⃣ Nyingine",
             )
         elif msg == "7":
             # Wasilisha Malalamiko (re-use existing submit complaint flow)
             next_state = SUBMIT_DEPT
-            reply = (
+            reply = _t(
+                lang,
+                "Choose the department related to your complaint:\n"
+                "1️⃣ Land\n"
+                "2️⃣ Electricity\n"
+                "3️⃣ Health\n"
+                "4️⃣ Water\n"
+                "5️⃣ Business & Market",
                 "Chagua idara inayohusika na malalamiko yako:\n"
                 "1️⃣ Ardhi\n"
                 "2️⃣ Umeme\n"
                 "3️⃣ Afya\n"
                 "4️⃣ Maji\n"
-                "5️⃣ Biashara na Soko"
+                "5️⃣ Biashara na Soko",
             )
         elif msg == "Wasilisha swali":
             # Button from FAQ (option 5): go to submit-question flow
@@ -664,7 +687,22 @@ def process_message(session_state, session_context, session_language, user_messa
         if mode == "detail" and msg == "3":
             ctx["council_mode"] = "menu"
             next_state = COUNCIL_MENU
-            reply = (
+            reply = _t(
+                lang,
+                "3️⃣ Chemba District Council\n\n"
+                "The Council has 20 departments and units performing various functions.\n\n"
+                "Choose the department or unit you want to know more about:\n"
+                "1️⃣ Health, Social Welfare and Nutrition\n"
+                "2️⃣ Early Childhood and Primary Education\n"
+                "3️⃣ Secondary Education\n"
+                "4️⃣ Planning and Coordination\n"
+                "5️⃣ Industry, Trade and Investment\n"
+                "6️⃣ Community Development\n"
+                "7️⃣ Agriculture, Livestock and Fisheries\n"
+                "8️⃣ Infrastructure, Rural and Urban Development\n"
+                "9️⃣ Administration and Human Resources\n"
+                "🔟 Other units (Waste, Environment, Sports, Elections, Accounts, Legal, Internal Audit, Procurement, ICT, Government Communications, Monitoring & Evaluation)\n\n"
+                "👉 Reply with the department number (1–10), or reply 0 to go back to the main menu.",
                 "3️⃣ Halmashauri ya Wilaya ya Chemba\n\n"
                 "Halmashauri ina idara na vitengo 20 vinavyotekeleza majukumu mbalimbali.\n\n"
                 "Chagua idara au kitengo unachotaka kujua zaidi:\n"
@@ -678,13 +716,17 @@ def process_message(session_state, session_context, session_language, user_messa
                 "8️⃣ Miundombinu, Maendeleo ya Vijijini na Mjini\n"
                 "9️⃣ Utawala na Rasilimali Watu\n"
                 "🔟 Vitengo vingine (Taka, Mazingira, Michezo, Uchaguzi, Uhasibu, Sheria, Ukaguzi, Ununuzi, Tehama, Mawasiliano, Ufuatiliaji na Tathmini)\n\n"
-                "👉 Jibu kwa namba ya idara (1–10), au jibu 0 kurudi kwenye menyu kuu."
+                "👉 Jibu kwa namba ya idara (1–10), au jibu 0 kurudi kwenye menyu kuu.",
             )
             return next_state, ctx, reply
 
         # For all other numeric options, stay within COUNCIL_MENU
         next_state = COUNCIL_MENU
-        back_hint = "\n\n👉 Jibu 3 kurudi kwenye orodha ya Halmashauri, au jibu # kurudi kwenye menyu kuu."
+        back_hint = _t(
+            lang,
+            "\n\n👉 Reply 3 to go back to the Council list, or reply # to return to the main menu.",
+            "\n\n👉 Jibu 3 kurudi kwenye orodha ya Halmashauri, au jibu # kurudi kwenye menyu kuu.",
+        )
 
         if msg == "1":
             # Afya, Ustawi wa Jamii na Lishe

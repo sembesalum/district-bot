@@ -15,6 +15,7 @@ from .flow import (
     SUBMIT_MESSAGE,
     TRACK_CHOICE,
     TRACK_LIST_SHOWN,
+    _t,
 )
 
 @csrf_exempt
@@ -107,27 +108,36 @@ def webhook(request):
                     # Build track list from DB when user chose Malalamiko or Maswali
                     if context_update.get("track_list_type"):
                         list_type = context_update.pop("track_list_type")
+                        lang = session.language or "sw"
                         phone_digits = re.sub(r"\D", "", str(phone))
                         tickets = list(
                             Ticket.objects.filter(phone_number=phone_digits, ticket_type=list_type).order_by("-created_at")[:20]
                         )
                         if list_type == "complaint":
-                            header = "Malalamiko yako:\n\n"
+                            header = _t(lang, "Your complaints:\n\n", "Malalamiko yako:\n\n")
                         else:
-                            header = "Maswali yako:\n\n"
+                            header = _t(lang, "Your questions:\n\n", "Maswali yako:\n\n")
                         if not tickets:
                             reply_text = header + (
-                                "Hakuna malalamiko yaliyowasilishwa."
+                                _t(lang, "No complaints submitted yet.", "Hakuna malalamiko yaliyowasilishwa.")
                                 if list_type == "complaint"
-                                else "Hakuna maswali yaliyowasilishwa."
+                                else _t(lang, "No questions submitted yet.", "Hakuna maswali yaliyowasilishwa.")
                             )
                         else:
                             lines = []
                             for t in tickets:
-                                status_sw = {"received": "Imepokelewa", "in_progress": "Inakaguliwa", "answered": "Imegibiwa"}.get(t.status, t.status)
-                                line = f"• Kitambulisho: {t.ticket_id}\n  Ujumbe: {t.message}\n  Hali: {status_sw} | {t.created_at.strftime('%Y-%m-%d %H:%M')}"
+                                status_label = {
+                                    "received": _t(lang, "Received", "Imepokelewa"),
+                                    "in_progress": _t(lang, "In review", "Inakaguliwa"),
+                                    "answered": _t(lang, "Answered", "Imegibiwa"),
+                                }.get(t.status, t.status)
+                                line = (
+                                    f"• {_t(lang, 'ID', 'Kitambulisho')}: {t.ticket_id}\n"
+                                    f"  {_t(lang, 'Message', 'Ujumbe')}: {t.message}\n"
+                                    f"  {_t(lang, 'Status', 'Hali')}: {status_label} | {t.created_at.strftime('%Y-%m-%d %H:%M')}"
+                                )
                                 if t.status == Ticket.STATUS_ANSWERED and (t.feedback or "").strip():
-                                    line += f"\n  Jibu: {(t.feedback or '').strip()}"
+                                    line += f"\n  {_t(lang, 'Answer', 'Jibu')}: {(t.feedback or '').strip()}"
                                 lines.append(line)
                             reply_text = header + "\n".join(lines)
                         send_track_list_button = True
@@ -191,11 +201,18 @@ def webhook(request):
                             print("⚠️ LOGO_URL not set; skipping welcome image for", phone)
 
                     # Option 8: send only one interactive (Chagua + Unataka Fuatilia? + 2 buttons), no separate text
-                    if next_state == TRACK_CHOICE and (reply_text or "").strip() == "Unataka Fuatilia?":
+                    if next_state == TRACK_CHOICE and (reply_text or "").strip() in (
+                        "Unataka Fuatilia?",
+                        "What would you like to track?",
+                    ):
+                        lang = session.language or "sw"
                         send_interactive_buttons(
                             phone,
-                            "Unataka Fuatilia?",
-                            [{"id": "malalamiko", "title": "Malalamiko"}, {"id": "maswali", "title": "Maswali"}],
+                            _t(lang, "What would you like to track?", "Unataka Fuatilia?"),
+                            [
+                                {"id": "malalamiko", "title": _t(lang, "Complaints", "Malalamiko")},
+                                {"id": "maswali", "title": _t(lang, "Questions", "Maswali")},
+                            ],
                         )
                     elif is_welcome_reply and sent_welcome_as_caption:
                         print("✅ Welcome delivered in single image+caption message (state=" + next_state + ")")
@@ -208,24 +225,34 @@ def webhook(request):
 
                     # After complaint confirmation (not after track list): send Menyu kuu / Fuatilia tiketi buttons
                     if not send_track_list_button and (reply_text or "").strip().endswith("Bonyeza button hapa chini."):
+                        lang = session.language or "sw"
                         send_interactive_buttons(
                             phone,
-                            "Chagua:",
-                            [{"id": "menyu_kuu", "title": "Menyu kuu"}, {"id": "fuatilia_tiketi", "title": "Fuatilia tiketi"}],
+                            _t(lang, "Choose:", "Chagua:"),
+                            [
+                                {"id": "menyu_kuu", "title": _t(lang, "Main menu", "Menyu kuu")},
+                                {"id": "fuatilia_tiketi", "title": _t(lang, "Track my ticket", "Fuatilia tiketi")},
+                            ],
                         )
                     # After FAQ (option 5): send "Wasilisha swali" button
                     elif (reply_text or "").strip().startswith("5️⃣ Maswali ya Haraka"):
+                        lang = session.language or "sw"
                         send_interactive_buttons(
                             phone,
-                            "Je, hujapata swali ulilokuwa unataka kupata majibu yake? Bonyeza button hapa chini kuandika swali lako na utajibiwa ndani ya masaa 24.",
-                            [{"id": "wasilisha_swali", "title": "Wasilisha swali"}],
+                            _t(
+                                lang,
+                                "Didn't find the question you were looking for? Tap the button below to write your question and you will receive an answer within 24 hours.",
+                                "Je, hujapata swali ulilokuwa unataka kupata majibu yake? Bonyeza button hapa chini kuandika swali lako na utajibiwa ndani ya masaa 24.",
+                            ),
+                            [{"id": "wasilisha_swali", "title": _t(lang, "Submit a question", "Wasilisha swali")}],
                         )
                     # After track list: send "Menyu kuu" button (return to main menu)
                     elif send_track_list_button:
+                        lang = session.language or "sw"
                         send_interactive_buttons(
                             phone,
-                            "Kurudi kwenye menyu kuu:",
-                            [{"id": "menyu_kuu", "title": "Menyu kuu"}],
+                            _t(lang, "Back to main menu:", "Kurudi kwenye menyu kuu:"),
+                            [{"id": "menyu_kuu", "title": _t(lang, "Main menu", "Menyu kuu")}],
                         )
 
         return HttpResponse("EVENT_RECEIVED", status=200)
