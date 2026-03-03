@@ -10,8 +10,14 @@ from django.conf import settings
 
 from .ai_utils import rewrite_info_answer, answer_from_web_search
 
-# Common footer line used on AI-formatted informational replies
-FOOTER_LINE = "Kama una swali jingine, karibu nikuhudumie au jibu # kama unahitaji kuanza upya 🙏🏽"
+# Common footer lines used on AI-formatted informational replies
+FOOTER_LINE_SW = "Kama una swali jingine, karibu nikuhudumie au jibu # kama unahitaji kuanza upya 🙏🏽"
+FOOTER_LINE_EN = "If you have another question, feel free to ask, or reply # if you want to start again. 🙏🏽"
+
+
+def _footer(lang: str | None) -> str:
+    """Return footer in the appropriate language."""
+    return FOOTER_LINE_EN if (lang or "").lower().startswith("en") else FOOTER_LINE_SW
 
 # ---- States ----
 WELCOME = "welcome"
@@ -404,11 +410,12 @@ def process_message(session_state, session_context, session_language, user_messa
         and ("?" in msg or " " in msg)
         and msg_lower not in MENU_LIKE_PHRASES
     ):
-        answer_text, answered = answer_from_web_search(msg, session_language or "sw")
+        lang = session_language or "sw"
+        answer_text, answered = answer_from_web_search(msg, lang)
         if answered and answer_text:
             next_state = MAIN_MENU
             ctx = {}
-            reply = answer_text.rstrip() + "\n\n" + FOOTER_LINE
+            reply = answer_text.rstrip() + "\n\n" + _footer(lang)
             return next_state, ctx, reply
         # No answer from search: send to swali section with prompt
         next_state = SUBMIT_QUESTION
@@ -452,7 +459,7 @@ def process_message(session_state, session_context, session_language, user_messa
 
     # ----- Main menu -----
     if state == MAIN_MENU:
-        # For now, we only use Kiswahili.
+        lang = session_language or "sw"
         if msg == "1":
             # Utangulizi wa Wilaya – full content from taarifa.md, rewritten via AI
             base = (
@@ -482,10 +489,11 @@ def process_message(session_state, session_context, session_language, user_messa
                 header, body = base.split("\n\n", 1)
             else:
                 header, body = base, ""
-            reply = rewrite_info_answer(header, body, lang=session_language or "sw")
+            reply = rewrite_info_answer(header, body, lang=lang)
             # Ensure common footer is present exactly once
-            if not reply.strip().endswith(FOOTER_LINE):
-                reply = reply.rstrip() + "\n\n" + FOOTER_LINE
+            footer = _footer(lang)
+            if not reply.strip().endswith(footer):
+                reply = reply.rstrip() + "\n\n" + footer
             next_state = MAIN_MENU
         elif msg == "2":
             # Taasisi za Serikali – full content from taarifa.md, rewritten via AI
@@ -518,9 +526,10 @@ def process_message(session_state, session_context, session_language, user_messa
                 header, body = base.split("\n\n", 1)
             else:
                 header, body = base, ""
-            reply = rewrite_info_answer(header, body, lang=session_language or "sw")
-            if not reply.strip().endswith(FOOTER_LINE):
-                reply = reply.rstrip() + "\n\n" + FOOTER_LINE
+            reply = rewrite_info_answer(header, body, lang=lang)
+            footer = _footer(lang)
+            if not reply.strip().endswith(footer):
+                reply = reply.rstrip() + "\n\n" + footer
             next_state = MAIN_MENU
         elif msg == "3":
             # Halmashauri ya Wilaya – open sub-menu to avoid long single message
@@ -553,9 +562,10 @@ def process_message(session_state, session_context, session_language, user_messa
                 header, body = base.split("\n\n", 1)
             else:
                 header, body = base, ""
-            reply = rewrite_info_answer(header, body, lang=session_language or "sw")
-            if not reply.strip().endswith(FOOTER_LINE):
-                reply = reply.rstrip() + "\n\n" + FOOTER_LINE
+            reply = rewrite_info_answer(header, body, lang=lang)
+            footer = _footer(lang)
+            if not reply.strip().endswith(footer):
+                reply = reply.rstrip() + "\n\n" + footer
             next_state = MAIN_MENU
         elif msg == "5":
             # Maswali ya Haraka – Maswali Yanayoulizwa Mara kwa Mara (FAQ) – STATIC, no AI
