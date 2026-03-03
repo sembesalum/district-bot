@@ -365,10 +365,11 @@ def process_message(session_state, session_context, session_language, user_messa
         return next_state, ctx, reply
 
     # ----- Free-form question: answer from internet search (Tanzania-focused) -----
-    # Skip when already in SUBMIT_QUESTION so the user can type and submit their question.
+    # Skip when already in SUBMIT_QUESTION or SUBMIT_MESSAGE so the user can type
+    # and submit their question/complaint to admin without AI at that stage.
     # Only for message that looks like a question (length + ? or space), not menu phrases.
     if (
-        state != SUBMIT_QUESTION
+        state not in (SUBMIT_QUESTION, SUBMIT_MESSAGE)
         and len(msg) >= 6
         and ("?" in msg or " " in msg)
         and msg_lower not in MENU_LIKE_PHRASES
