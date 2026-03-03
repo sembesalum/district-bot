@@ -572,19 +572,35 @@ def answer_freeform_question(user_message: str, lang: str = "sw") -> Tuple[Optio
         logger.warning("ChembaBot: answer_freeform_question skipped (missing OPENAI_API_KEY or TAARIFA_TEXT)")
         return None, False
 
-    target_lang = "Kiswahili"
-    system_msg = (
-        "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa hati ya taarifa ya Wilaya (taarifa.md). "
-        "Kazi yako: kama swali la mtumiaji linajibiwa kwa taarifa iliyomo kwenye hati, jibu kwa lugha ya Kiswahili, "
-        "kwa ufupi na kwa maneno ya binadamu. Tumia namba na majina kama yalivyo kwenye hati. "
-        "Kama hati HAINA taarifa inayojibu swali hilo kabisa, jibu kwa neno moja tu: NO_ANSWER. "
-        "Usiongeze mambo yasiyomo kwenye hati."
-    )
-    user_msg = (
-        f"Hati ya taarifa (taarifa.md):\n\n{TAARIFA_TEXT}\n\n"
-        f"Swali la mtumiaji: {user_message}\n\n"
-        f"Jibu kwa {target_lang} ikiwa jibu liko kwenye hati; vinginevyo andika NO_ANSWER tu."
-    )
+    lang_code = (lang or "").lower()
+    if lang_code.startswith("en"):
+        target_lang = "English"
+        system_msg = (
+            "You are an assistant for Chemba District Council in Tanzania. You are given an official document "
+            "(taarifa.md) about the district. Your job: if the user's question can be answered using information "
+            "inside that document, answer in clear, short English. Keep names and numbers exactly as they appear "
+            "in the document. If the document does NOT contain information that answers the question at all, reply "
+            "with exactly one word: NO_ANSWER. Do not invent or guess anything that is not in the document."
+        )
+        user_msg = (
+            f"Official reference document (taarifa.md):\n\n{TAARIFA_TEXT}\n\n"
+            f"User question: {user_message}\n\n"
+            f"Answer in {target_lang} ONLY if the answer is present in the document; otherwise reply with NO_ANSWER only."
+        )
+    else:
+        target_lang = "Kiswahili"
+        system_msg = (
+            "Wewe ni msaidizi wa Halmashauri ya Wilaya ya Chemba. Unapewa hati ya taarifa ya Wilaya (taarifa.md). "
+            "Kazi yako: kama swali la mtumiaji linajibiwa kwa taarifa iliyomo kwenye hati, jibu kwa lugha ya Kiswahili, "
+            "kwa ufupi na kwa maneno ya binadamu. Tumia namba na majina kama yalivyo kwenye hati. "
+            "Kama hati HAINA taarifa inayojibu swali hilo kabisa, jibu kwa neno moja tu: NO_ANSWER. "
+            "Usiongeze mambo yasiyomo kwenye hati."
+        )
+        user_msg = (
+            f"Hati ya taarifa (taarifa.md):\n\n{TAARIFA_TEXT}\n\n"
+            f"Swali la mtumiaji: {user_message}\n\n"
+            f"Jibu kwa {target_lang} ikiwa jibu liko kwenye hati; vinginevyo andika NO_ANSWER tu."
+        )
     logger.info("ChembaBot: answer_freeform_question using taarifa.md only")
     response = _call_openai_chat(
         [
@@ -629,31 +645,58 @@ def answer_from_web_search(user_message: str, lang: str = "sw") -> Tuple[Optiona
     logger.info("ChembaBot: taarifa.md had no answer, moving to official website / .go.tz logic")
 
     # Step 2: fall back to AI with instructions to rely on official sources only
-    system_msg = (
-        "You are a professional AI Assistant for Chemba District Council in Tanzania. "
-        "Your role is to provide accurate, official, and helpful information to citizens. "
-        "When answering any free-form user question, you MUST follow this strict information priority order:\n"
-        "1) Primary source: the local Chemba document (taarifa.md snippets) which has already been checked.\n"
-        "2) Secondary source: the official Chemba District website (https://chembadc.go.tz/).\n"
-        "3) Tertiary source: other official Tanzanian Government websites with domain .go.tz.\n"
-        "Rules: Always prioritise sources in this exact order. Do NOT use non-government websites. "
-        "Do NOT generate speculative or unverified information. If information is not available from these official "
-        "sources, reply with exactly: Information not available in official sources."
-    )
+    lang_code = (lang or "").lower()
+    if lang_code.startswith("en"):
+        system_msg = (
+            "You are a professional AI Assistant for Chemba District Council in Tanzania. "
+            "Your role is to provide accurate, official, and helpful information to citizens. "
+            "When answering any free-form user question, you MUST follow this strict information priority order:\n"
+            "1) Primary source: the local Chemba document (taarifa.md snippets) which has already been checked.\n"
+            "2) Secondary source: the official Chemba District website (https://chembadc.go.tz/).\n"
+            "3) Tertiary source: other official Tanzanian Government websites with domain .go.tz.\n"
+            "Rules: Always prioritise sources in this exact order. Do NOT use non-government websites. "
+            "Do NOT generate speculative or unverified information. If information is not available from these official "
+            "sources, reply with exactly: Information not available in official sources. "
+            "All final answers must be in clear, natural English."
+        )
+    else:
+        system_msg = (
+            "You are a professional AI Assistant for Chemba District Council in Tanzania. "
+            "Your role is to provide accurate, official, and helpful information to citizens. "
+            "When answering any free-form user question, you MUST follow this strict information priority order:\n"
+            "1) Primary source: the local Chemba document (taarifa.md snippets) which has already been checked.\n"
+            "2) Secondary source: the official Chemba District website (https://chembadc.go.tz/).\n"
+            "3) Tertiary source: other official Tanzanian Government websites with domain .go.tz.\n"
+            "Rules: Always prioritise sources in this exact order. Do NOT use non-government websites. "
+            "Do NOT generate speculative or unverified information. If information is not available from these official "
+            "sources, reply with exactly: Information not available in official sources. "
+            "All final answers must be in clear, natural Kiswahili."
+        )
 
     # Fetch official Chemba DC website content (secondary source)
     site_text = _fetch_chembadc_text()
     if site_text:
         logger.info("ChembaBot: including chembadc.go.tz text in OpenAI prompt")
-        user_content = (
-            "Hii ni nukuu ya ukurasa wa tovuti rasmi ya Halmashauri ya Wilaya ya Chemba "
-            "(https://chembadc.go.tz/):\n\n"
-            f"{site_text}\n\n"
-            f"Swali la mtumiaji: {user_message}\n\n"
-            "Jibu kwa Kiswahili, ukitumia tu taarifa kutoka kwenye hati ya taarifa au nukuu ya tovuti "
-            "na maarifa yako ya tovuti rasmi za serikali (.go.tz). "
-            "Ikiwa taarifa haipo katika vyanzo hivi rasmi, andika: Information not available in official sources."
-        )
+        if lang_code.startswith("en"):
+            user_content = (
+                "This is an excerpt of the official website of Chemba District Council "
+                "(https://chembadc.go.tz/):\n\n"
+                f"{site_text}\n\n"
+                f"User question: {user_message}\n\n"
+                "Answer in English, using only information from the official document and this website excerpt, "
+                "and from other official Tanzanian government (.go.tz) sources. "
+                "If the information is not available in these official sources, reply with: Information not available in official sources."
+            )
+        else:
+            user_content = (
+                "Hii ni nukuu ya ukurasa wa tovuti rasmi ya Halmashauri ya Wilaya ya Chemba "
+                "(https://chembadc.go.tz/):\n\n"
+                f"{site_text}\n\n"
+                f"Swali la mtumiaji: {user_message}\n\n"
+                "Jibu kwa Kiswahili, ukitumia tu taarifa kutoka kwenye hati ya taarifa au nukuu ya tovuti "
+                "na maarifa yako ya tovuti rasmi za serikali (.go.tz). "
+                "Ikiwa taarifa haipo katika vyanzo hivi rasmi, andika: Information not available in official sources."
+            )
     else:
         # If website content is not reachable, fall back to using only model's knowledge of official sources
         logger.warning("ChembaBot: chembadc.go.tz content not available; using model knowledge of official sources only")
