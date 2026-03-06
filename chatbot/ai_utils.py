@@ -311,6 +311,88 @@ TANESCO Wilaya ya Chemba inatoa huduma ya usambazaji wa umeme vijijini na mijini
 • Maeneo yaliyotengwa kwa ajili ya uwekezaji wa shule binafsi, ujenzi wa malls, hoteli, lodges, hospitali binafsi n.k.
 """
 
+TAARIFA_MD_SNIPPET4 = """
+i) Statement by District Commissioner
+I, Halima Okash, District Commissioner for Chemba District, with greatful pleasure, I would like to welcome you all in Chemba District to grab effectively and efficiently investment opportunities available. Our District is endowed with huge socio-economic potentials. The district has a total area of 7,653 square kilometers, with a total arable land of 925,000 hectares, cultivated area is 262,264 hectares which is suitable for cropping of Sunflower, Maize, Sorghum, Finger-millet, Groundnuts, Simsim, Paddy, Millet, Beans, Pigeon peas, Cassava, Sweet potatoes, Bambaranuts, and a few to mention. The District has about 351,130 cattle that could produce about 3,360,000 litres of milk for period between January and July and also they can produce about 1,200,000 litres of milk for period between August and December. The District has abundance forestry resources in four Community Based Forest Reserves with size of 6,269.29 ha, Swagaswaga Game Reserve with size of 87,100ha, and forests on general land with size of 3,062ha all are appropriate for beekeeping activities and other related activities. The District has attraction sites useful for eco-tourism and cultural heritage tourism, in particular sites you can find unique features like old man footprints, hotwater in the curve, pecurial wild dogs at Swagaswaga GR, Rock shaped like a moon, Rock paintings, Baobao tree looks like woman shape, enormous unique tropical snakes like Black mamba, taboos and noms of Sandawe, Rangi, Burunge, Mbulu, Barabaig, Mang'ati, and Masai tribes. Additional, the District is rich in various minerals like Gold, Gemstones (i.e. Amethyst, Turquoise, and Sapphire), Uranium, Ruby, Limestone, and Building Materials like Sand, Stones, Aggregates, and Moram.
+Furthermore, its my pleasure that, this preface provides overview of existing investment opportunities presence in Chemba District. Therefore, I'm glad to invite local and international interested investors to come close and assess socio-economic potentials for better future endeavors of our district, region and country as well.
+
+1. Geographical Location and Boundaries
+Chemba District is one of the seven districts of the Dodoma Region. It was formed after 2010, when it was split off from Kondoa District. It is located in the northern part 110 km from the Regional Head Quarters where it covers an area of about 7,653 square kilometers. It lies in latitudes and longitudes between 050 14'34"S and 350 53'24"E. It is situated within the central plateau of Tanzania. It is bordered to the north by Kondoa District, to the north-west by Hanang District (Manyara Region), to the east by Kiteto District (Manyara Region), to the south by Chamwino and Bahi Districts, and to the west by Singida Rural District. In the south is bordered by Bahi and Chamwino Districts, in the east is bordered by Kiteto and Kongwa Districts, in the west is bordered by Kondoa, Singida Rural and Manyoni Districts. Its administrative seat is the town of Chemba. The district comprises of 4 divisions, 26 wards, and 114 villages with 494 hamlets.
+
+2. AGRICULTURE, LIVESTOCK AND INDUSTRY INVESTMENT POTENTIAL
+i. Climatic condition and Soil characteristics
+Chemba District Council is mostly Semi-arid due to low and erratic rainfall. Rainfall is the most important climatic factor in the Region. It falls in a single rainy season between November/December and April/May. Generally these rains fall in heavy storms resulting in flash floods. Consequently about 60% of the precipitation becomes run-off rather than penetrating the soil for crop growth. Total rainfall ranges from 500mm to 800mm per annum with high geographical, seasonal and annual variation. The temperature in the Region vary according to altitude but generally range from about 15ºC in July to 30ºC during the month of October. Moreover, temperature differences are observed between day and night and may be very high with hot afternoons going up to 35ºC and chilly nights going down to 10ºC.
+
+ii. Land suitability and main food and cash crops farming activities
+Agriculture is the main economic activity in Chemba District which employs about 95% of the inhabitants. The district has an area of 7,653 square kilometers of which 925,000 hectares are arable land. Area under crop cultivation is only 222,184 hectares which is 24% of arable land. Agriculture is still very traditional (shifting cultivation practices) with low yields in subsistence crops per hectare. Small individual peasant farmers undertake farming especially crop production. The major food crops grown in Chemba District are sorghum, bulrush, millet, maize, paddy and finger millet. Cash crops are groundnuts, sunflower, sesame, simsim and finger millet, pearl millet, Chick peas and a few to mention.
+
+iii. Potential for small holder farmers collaboration with large scale investors
+The district has significant arable lands that can be used by both small holder farmers and large scale investors as follows;
+• Kidoka irrigation scheme is located in Kidoka Village, Kidoka Ward. The scheme has total size of about 1000ha suitable for cultivation of watermelon, carrot, onion, pumpkin, and other related fruits and vegetables. 400 ha allocated for organized farmers group while 600ha set aside for investors. It is situated at flat terrain with mixed loamy-clay soils. It has irrigation facilities. The scheme is located about 5km from Dodoma-Arusha Highway. Kidoka village is in third phase Rural Electrical Agency Program (REA-III).
+• Cotton farming has been promoted in Gwandi and Rofati Villages since 2015 whereby about 204 acres are under cultivation. Both villages have arable land of about 2000ha. The cultivation capacity of small scale cotton farmers in both villages is about 500ha while 1500ha can be used by investors. There is assured cotton market in Arusha City, Dodoma City, Dar es Salaam City, Shinyanga Municipal, Kahama Town, and Morogoro Municipal. Gwandi village is situated 10 km from Chemba District Headquarters while Rofati village is situated 20km from Chemba District Headquarters. Both villages are in REA-III.
+• Ndoroboni paddy farming plots with size of about 500ha established at Ndoroboni Village, Kwamtoro ward. The cultivation capacity of small scale paddy farmers is about 200ha while 300ha can be used by investors. Ndoroboni village is situated 90 km from Chemba District Headquarters. It is in REA-III.
+• Jogolo paddy farming plots with size of about 3000ha established at Jogolo Village, Ovada ward. The cultivation capacity of small scale paddy farmers is about 1000ha while 2000ha can be used by investors. Jogolo village is situated 120 km from Chemba District Headquarters. It is in REA-III.
+
+iv. Potential for value addition activities (Crops, fishing, livestock and other raw materials availability)
+Based on crops cultivated in Chemba District, such as sorghum, bulrush, millet, maize, groundnuts, sunflower, sesame, and finger millet give economic opportunity through value addition activities. There are about 400 small scale millers for maize, sorghum, bulrush, fingermillet and also about 100 sunflower processors.
+The district has started construction of crops collection center at Mrijo suburban, 80km East from Chemba District Headquarters. The center has size of 50 acres, it is planned to accommodate storage facilities, agro-processing facilities, and other market facilities. The center has ability to accommodate 100 small scale enterprises, 50 medium scale enterprises, 20 large scale enterprises. Farmers from surrounding villages have ability to produce about 30,000 tonnes of maize and about 20,000 tonnes of sunflower per cropping season.
+The district has permanent and temporary waterbodies include, rivers, swamp, and man-made charcoal dam. Catfish and Tilapia fish types survive in the respective water sources. The government through the Ministry of Water is going to construct Dam in Bumbose and Bubutole villages, Farkwa Ward about 60 km west from Chemba District Headquarters. The principal purpose of the dam is to supply water to Dodoma City, Chemba District, Bahi District, and Chamwino District. The dam can also be useful for fishing.
+The District has about 351,130 cattle that could produce about 3,360,000 litres of milk for period between January and July and also they can produce about 1,200,000 litres of milk for period between August and December. Such amount of milk produced can support dairy industries in Chemba District, Dodoma region and nearby regions.
+
+3. OTHER SECTORS POTENTIAL
+The district has natural forests mainly Accacia sp suitable for beekeeping activities. The whole district has 22 beekeepers groups with about 1,522 modern bee hives produce about 53,280 kg of honey and 260 kg of wax annually. The District Council in collaboration with Tanzania Forest Funds (TFF) intend to construct Beekeeping Center at Chemba Town. There is guarantee of market for bee products because the district is centered between big cities of Dodoma and Arusha.
+There is possibility of establishment either hides or meat processing industries due to presence of about 351,130 cattle in the district.
+The district has potentials for Tourism industry (i.e. hiking, camping, sailing, bird watching). The height of Mount Chemba in Chemba Town (about 1200m asl) can be used for hiking/mountain climbing throughout the year. On the top of Mount Chemba, you will meet longest flat terrain of about 5km whereby wild animals like dik dik, wild cats, monkeys live. The proposed dam at Farkwa ward will promote establishment of hotels, lodges, and guest houses. The north part of the dam will be bordered with Swaga Swaga Game Reserve which is in the process into National Park.
+Chemba district is rich in various minerals like Gold, Gemstones (i.e. Amethyst, Turquoise, and Sapphire), Uranium, Ruby, Limestone, and Building Materials like Sand, Stones, Aggregates, and Moram. Mining activities are undergoing by artisan in some villages include, Mondo, Churuku, Goima, Mirambo, Chemka, Gwandi villages (Gemstone), Babayu and Maziwa Villages (Gold and Uranium), Kidoka village (Limestone), Chambalo village (Sand), Chemba Town, and Mirambo village (stones for aggregates).
+Chemba district has adequate ground water balance. Water bottling industry can be established in Kambi ya Nyasa village, Chemba ward. It is situated along Dodoma-Arusha Highway. It is in REA-III.
+The presence of loamy and clay soils create economic opportunity to community especially women in Chemba district. Organized Women Group in Chemba Town, use mixed loamy-clay soils to mould home appliances like dish, spoon, plates, pot, kettle and a few to mention.
+
+4. LAND AND POTENTIAL INVESTMENT PROJECT OPPORTUNITIES
+Table 1: Project profile for investment opportunities in Chemba District
+S/N | Project type | Investment Opportunity | Size (ha) | Land Management | Location
+1 | Kelema Feedlot Project | Raising & fattening, Life animal trading, Abattoir services, Livestock Extension Services, Meat Processing | 565.6 | Chemba District Council | Kelema village, Paranga ward, 100m from Dodoma-Arusha Highway
+2 | Lengu Industrial Area | Value addition for agriculture and livestock products | 2.8 | Chemba District Council | 1.7km from Chemba Town and 107km from Dodoma City
+3 | Kivombolo Housing Estate | Establishment of seven Housing Estate plots, total 119,300 square meters | 119,300 sqm | Chemba District Council | 3 km from Chemba Town and 105km from Dodoma City
+4 | Kivombolo Hotel Estate | 2 plots for Hotel Estate, total 14,000 square meters | 14,000 sqm | Chemba District Council | 3 km from Chemba Town and 105km from Dodoma City
+5 | Kivombolo Polytechnic College | Establishment of Polytechnic College | 5.3 | Chemba District Council | 3 km from Chemba Town and 105km from Dodoma City
+
+5. POPULATION SIZE, POPULATION GROWTH RATE AND POPULATION STRUCTURE
+i. Statistical information on population size: According to 2022 national Population and housing census report, Chemba District had a population of 339,333 of which 170,837 males and 168,496 females.
+ii. Population growth rate: The average population growth rate per annum is 3.7%. The number of households (HH) is 50,151 with average HH size of 4.7 and the life expectancy is set at an average of 46 years.
+
+5.1 Population size and distribution patterns
+Population density by ward: Lalta 5,781, Ovada 8,318, Sanzawa 15,970, Mpendo 11,861, Makorongo 8,640, Kwamtoro 17,657, Farkwa 15,616, Gwandi 7,328, Chemba 9,730, Paranga 17,613, Mondo 10,986, Goima 14,985, Songolo 13,078, Kimaha 13,435, Msaada 7,314, Mrijo 27,777, Chandama 10,511, Dalai 18,195, Churuku 9,635, Jangalo 21,713, Lahoda 20,584, Kinyamsindo 7,001, Soya 12,868, Tumbakose 5,028, Babayu 11,331, Kidoka 16,378. Source: Census (2022)
+
+5.2 EMPLOYMENT ASPECTS
+Table 3: Employment records - PRIMARY SCHOOL 919 (M587 F332), SECONDARY SCHOOL 416 (M316 F100), AFYA 319 (M161 F158), MIPANGO 9, MAJI 10, UTAWALA NA RASILIMALI WATU 176, KILIMO NA MIFUGO 68, MAENDELEO YA JAMII 22, ADMINISTRATION 59, BIASHARA VIWANDA NA UWEKEZAJI 4, MAZINGIRA 7, MIUNDOMBINU 6, FEDHA 15, MANUNUZI 6, SHERIA 5, MICHEZO NA UTAMADUNI 2, TEHAMA 3, HABARI 1. Source: Human Resource Office, 2025
+
+5.2 TOPOGRAPHY AND DRAINAGE SYSTEM
+The District possess various topographical features such as mountains, rivers, valleys, hills. Topographical features provide ecological services: watershed, windbreak, fuel wood, medicinal plants, bush meat, poles, grasses, animal fodder, timber, withies, fibres, and bee foliage.
+Water Supply: Chemba district council has managed to supply water to over 97 villages out of the 114 registered villages. The average services level is only 55% against the preferred 75%. There are 17 villages with no water sources. Boreholes 97, Gravity schemes 1, Charco/Dams 4, Rain Water Harvesting 54. Source: DWE-Chemba District Council, August 2025
+
+5.4 DISTRICT ECONOMY
+Major economic activities: agriculture, livestock keeping, and bees keeping. Other activities include trade and commerce, employment in public and small-scale industries mainly in agro business and furniture makings. Capita per income is about Tshs 1,584,000 (National Bureau of Statistics 2013). Per capital income for Chemba district is estimated at Tshs. 839,988 in 2012.
+Agriculture: About 85% of the district residents are engaged in agriculture. Farm sizes are on average of 3 to 5 acres per household. Maize and sorghum are the most important food crops. The average yield for maize is 600kg per acre and for sorghum is 500kg per acre.
+Livestock: The district has about 530,999 cattle, 352,445 goats and 57,445 sheep. Total cattle 351,130. Other livestock: pigs, chicken, dogs, cats, rabbits, guinea fowls. Source: DLFDO Chemba District, 2025
+
+5.5 TOURISM POTENTIAL
+The district has attraction sites suitable for hunting tourism such as Swagaswaga Game Reserve. Cultural Heritage Tourism in Sandawe Tribe zone with attractions: Sandawe language (Related to San People of Southern Africa), traditional dancing, traditional clothes, eco-friendly traditional house structures, old rock paintings, curves, hot spring water, footprint of old man, ecological niche for African snakes such as Black Mamba, Cobra etc.
+Tourists accommodation: 7 lodges in Chemba Town that can accommodate 140 tourists. Amazing Grace Lodge: 8 self contained rooms, 0.8km from Dodoma-Arusha Highway, on foot of Mount Chemba. New Vision Lodge: 7 self contained rooms, 60m from central corridor road. Both lodges have space for camping tents.
+
+5.6 TRADE
+The main trading activities depend on agriculture and livestock products. Through 16 common markets existing in the district. Agriculture products: maize, sunflower, sorghum, millet, beans. Livestock products: live animals, hides, meat, and milk. The government through Local Climate Investment Project (LIC) has facilitated construction of One Business Stop Centre for business licence, TIN Number, and Banking services. Chemba District is going to benefit from REA-III.
+
+5.7 TRANSPORT NETWORK
+Chemba District has networks of total length of 1,323 km: trunk roads 50km, regional Rural Roads 170 km, District main roads 283km, feeder roads 570km and community roads 250km. About 28% of District Roads have gravel wearing course; 72% are earth roads. Only 70% of District roads are passable throughout the year.
+
+5.8 COMMUNICATION AND FINANCIAL SERVICES
+Communication networks: Yas, TTCL, Vodacom, Halotel, and Airtel. Total of 20 communication towers. 4G or 5G internet services available.
+There is no bank established in Chemba District. People access banking through mobile money (M-pesa, Mix by Yas, Halo-pesa, Airtel-Money) and agents of NMB and CRDB.
+
+5.9 ENERGY
+Chemba district with 114 villages, all 114 villages connected in grid power under TANESCO. About 85% households depend on charcoal or/and firewood for cooking. Some areas such Chemba Town, Mrijo, Soya, and Kidoka villages have Liquefied Gas Vendors.
+"""
+
 
 def _load_taarifa_text() -> str:
     """
@@ -335,6 +417,8 @@ TAARIFA_TEXT: str = (
     + TAARIFA_MD_SNIPPET2
     + "\n\n"
     + TAARIFA_MD_SNIPPET3
+    + "\n\n"
+    + TAARIFA_MD_SNIPPET4
 )
 
 
